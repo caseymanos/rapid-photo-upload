@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "RapidPhotoUpload",
+    "slug": "rapid-photo-upload",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rapidphotoupload.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to take photos for upload.",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to select photos for upload."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.rapidphotoupload.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-image-picker",
+      "expo-file-system"
+    ]
+  }
+}

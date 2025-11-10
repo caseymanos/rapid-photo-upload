@@ -71,10 +71,11 @@ public class UploadSessionRepositoryImpl implements UploadSessionRepository {
             entity.getFailedPhotos(),
             entity.getStatus(),
             entity.getStartedAt(),
-            entity.getCompletedAt()
+            entity.getCompletedAt(),
+            entity.getVersion()
         );
     }
-    
+
     private UploadSessionEntity toEntity(UploadSession session) {
         UploadSessionEntity entity = new UploadSessionEntity();
         entity.setId(session.getId());
@@ -86,6 +87,7 @@ public class UploadSessionRepositoryImpl implements UploadSessionRepository {
         entity.setStatus(session.getStatus());
         entity.setStartedAt(session.getStartedAt());
         entity.setCompletedAt(session.getCompletedAt());
+        entity.setVersion(session.getVersion());
         return entity;
     }
 }

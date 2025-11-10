@@ -29,6 +29,10 @@ public class Photo {
     private long fileSizeBytes;
     private String mimeType;
     private String thumbnailUrl;
+    private String thumbnailFallbackUrl;
+    private String placeholderUrl;
+    private String placeholderFallbackUrl;
+    private String placeholderBase64;
     private Instant createdAt;
     private Instant updatedAt;
     
@@ -63,7 +67,7 @@ public class Photo {
         this.uploadStatus = UploadStatus.PENDING;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
-        this.version = 0L;
+        this.version = null;
         
         this.metadata = new PhotoMetadata(new ArrayList<>());
     }
@@ -84,8 +88,13 @@ public class Photo {
         Instant uploadExpiresAt,
         PhotoMetadata metadata,
         String thumbnailUrl,
+        String thumbnailFallbackUrl,
+        String placeholderUrl,
+        String placeholderFallbackUrl,
+        String placeholderBase64,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        Long version
     ) {
         this.id = id;
         this.userId = userId;
@@ -101,8 +110,13 @@ public class Photo {
         this.uploadExpiresAt = uploadExpiresAt;
         this.metadata = metadata;
         this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailFallbackUrl = thumbnailFallbackUrl;
+        this.placeholderUrl = placeholderUrl;
+        this.placeholderFallbackUrl = placeholderFallbackUrl;
+        this.placeholderBase64 = placeholderBase64;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.version = version;
     }
     
     public void initiateUpload(String multipartUploadId) {
@@ -198,6 +212,26 @@ public class Photo {
         this.thumbnailUrl = thumbnailUrl;
         this.updatedAt = Instant.now();
     }
+
+    public void setThumbnailFallbackUrl(String thumbnailFallbackUrl) {
+        this.thumbnailFallbackUrl = thumbnailFallbackUrl;
+        this.updatedAt = Instant.now();
+    }
+
+    public void setPlaceholderUrl(String placeholderUrl) {
+        this.placeholderUrl = placeholderUrl;
+        this.updatedAt = Instant.now();
+    }
+
+    public void setPlaceholderFallbackUrl(String placeholderFallbackUrl) {
+        this.placeholderFallbackUrl = placeholderFallbackUrl;
+        this.updatedAt = Instant.now();
+    }
+
+    public void setPlaceholderBase64(String placeholderBase64) {
+        this.placeholderBase64 = placeholderBase64;
+        this.updatedAt = Instant.now();
+    }
     
     public void setUploadExpiresAt(Instant expiresAt) {
         this.uploadExpiresAt = expiresAt;
@@ -218,4 +252,5 @@ public class Photo {
     public boolean isExpired() {
         return uploadExpiresAt != null && Instant.now().isAfter(uploadExpiresAt);
     }
+
 }

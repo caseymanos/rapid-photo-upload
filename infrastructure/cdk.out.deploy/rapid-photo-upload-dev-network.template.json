@@ -1,0 +1,264 @@
+{
+ "Description": "Network infrastructure for rapid-photo-upload dev",
+ "Resources": {
+  "AlbSecurityGroup86A59E99": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for Application Load Balancer",
+    "GroupName": "rapid-photo-upload-dev-alb-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTP from internet",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTPS from internet",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "VpcId": "vpc-03cd6462b46350c8e"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/AlbSecurityGroup/Resource"
+   }
+  },
+  "EcsSecurityGroup44008BF1": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for ECS Fargate tasks",
+    "GroupName": "rapid-photo-upload-dev-ecs-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "VpcId": "vpc-03cd6462b46350c8e"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/EcsSecurityGroup/Resource"
+   }
+  },
+  "EcsSecurityGroupfromrapidphotouploaddevnetworkAlbSecurityGroup2DEFE793808036885CBF": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow traffic from ALB",
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "EcsSecurityGroup44008BF1",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AlbSecurityGroup86A59E99",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8080
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/EcsSecurityGroup/from rapidphotouploaddevnetworkAlbSecurityGroup2DEFE793:8080"
+   }
+  },
+  "DatabaseSecurityGroup7319C0F6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for RDS PostgreSQL database",
+    "GroupName": "rapid-photo-upload-dev-db-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "255.255.255.255/32",
+      "Description": "Disallow all traffic",
+      "FromPort": 252,
+      "IpProtocol": "icmp",
+      "ToPort": 86
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "VpcId": "vpc-03cd6462b46350c8e"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/DatabaseSecurityGroup/Resource"
+   }
+  },
+  "DatabaseSecurityGroupfromrapidphotouploaddevnetworkEcsSecurityGroup9D89F46054327A2CBE03": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow PostgreSQL from ECS tasks",
+    "FromPort": 5432,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "DatabaseSecurityGroup7319C0F6",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "EcsSecurityGroup44008BF1",
+      "GroupId"
+     ]
+    },
+    "ToPort": 5432
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/DatabaseSecurityGroup/from rapidphotouploaddevnetworkEcsSecurityGroup9D89F460:5432"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/33JQQrCMBBA0bN0n4zpXMGFuBLaA0icjpJWkzKTaZHSu4u4d/XhfQREhNDEVT0Nk3+mG2x9jTS5jrWYELu46pUJYeuZTFJ9n6TY7I73/B/O+SGsun/HxepsdXe5DAyjHhYM0LYQmlFT8mK5phdD9+sH4AjTLZUAAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-network/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "VpcId": {
+   "Description": "VPC ID",
+   "Value": "vpc-03cd6462b46350c8e",
+   "Export": {
+    "Name": "rapid-photo-upload-dev-vpc-id"
+   }
+  },
+  "ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseSecurityGroup7319C0F6",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-network:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+   }
+  },
+  "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AlbSecurityGroup86A59E99",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-network:ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+   }
+  },
+  "ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5": {
+   "Value": {
+    "Fn::GetAtt": [
+     "EcsSecurityGroup44008BF1",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-network:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

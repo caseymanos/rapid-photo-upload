@@ -1,0 +1,143 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------< com.rapidphotoupload:rapid-photo-upload >---------------
+[INFO] Building RapidPhotoUpload 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.0:run (default-cli) > test-compile @ rapid-photo-upload >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ rapid-photo-upload ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ rapid-photo-upload ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ rapid-photo-upload ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ rapid-photo-upload ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.0:run (default-cli) < test-compile @ rapid-photo-upload <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.0:run (default-cli) @ rapid-photo-upload ---
+[INFO] Attaching agents: []
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2025-11-10 03:53:04 - Starting RapidPhotoUploadApplication using Java 21.0.1 with PID 71621 (/Users/caseymanos/GauntletAI/rapidPhotoUpload/backend/target/classes started by caseymanos in /Users/caseymanos/GauntletAI/rapidPhotoUpload/backend)
+2025-11-10 03:53:04 - The following 1 profile is active: "dev"
+2025-11-10 03:53:05 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-10 03:53:05 - Finished Spring Data repository scanning in 15 ms. Found 3 JPA repository interfaces.
+2025-11-10 03:53:05 - Tomcat initialized with port 8080 (http)
+2025-11-10 03:53:05 - Starting service [Tomcat]
+2025-11-10 03:53:05 - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-11-10 03:53:05 - Initializing Spring embedded WebApplicationContext
+2025-11-10 03:53:05 - Root WebApplicationContext: initialization completed in 928 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2025-11-10 03:53:05 - HikariPool-1 - Starting...
+2025-11-10 03:53:05 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@b788dc2
+2025-11-10 03:53:05 - HikariPool-1 - Start completed.
+2025-11-10 03:53:05 - Flyway Community Edition 9.22.3 by Redgate
+2025-11-10 03:53:05 - See release notes here: https://rd.gt/416ObMi
+2025-11-10 03:53:05 - 
+2025-11-10 03:53:05 - Database: jdbc:postgresql://localhost:5432/photoupload (PostgreSQL 15.14)
+2025-11-10 03:53:06 - Successfully validated 1 migration (execution time 00:00.012s)
+2025-11-10 03:53:06 - Current version of schema "public": 001
+2025-11-10 03:53:06 - Schema "public" is up to date. No migration necessary.
+2025-11-10 03:53:06 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-10 03:53:06 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-10 03:53:06 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-10 03:53:06 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-10 03:53:07 - Initialized S3 download URL cache (maxSize=2000, ttl=2h)
+2025-11-10 03:53:07 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-10 03:53:08 - Exposing 4 endpoint(s) beneath base path '/actuator'
+2025-11-10 03:53:08 - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7aaa4694, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@23504729, org.springframework.security.web.context.SecurityContextHolderFilter@74873b07, org.springframework.security.web.header.HeaderWriterFilter@6c6d3ce5, org.springframework.web.filter.CorsFilter@13b85e31, org.springframework.security.web.authentication.logout.LogoutFilter@61ad4b83, com.rapidphotoupload.infrastructure.security.JwtAuthenticationFilter@4fa91d5b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1cfd3acc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4463d9b7, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5437c315, org.springframework.security.web.session.SessionManagementFilter@794ca18b, org.springframework.security.web.access.ExceptionTranslationFilter@4be2f788, org.springframework.security.web.access.intercept.AuthorizationFilter@170738c0]
+2025-11-10 03:53:08 - Tomcat started on port 8080 (http) with context path ''
+2025-11-10 03:53:08 - Starting...
+2025-11-10 03:53:08 - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@15fc044d]]
+2025-11-10 03:53:08 - Started.
+2025-11-10 03:53:08 - Started RapidPhotoUploadApplication in 4.085 seconds (process running for 4.229)
+2025-11-10 03:53:53 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-10 03:53:53 - Initializing Servlet 'dispatcherServlet'
+2025-11-10 03:53:53 - Completed initialization in 4 ms
+2025-11-10 03:53:53 - Cache miss for REQUEST dispatch to '/actuator/health' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-11-10 03:54:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 2, completed tasks = 0]
+2025-11-10 04:24:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 2, completed tasks = 1]
+2025-11-10 04:54:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 5, active threads = 1, queued tasks = 2, completed tasks = 2]
+2025-11-10 05:24:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 6, active threads = 1, queued tasks = 2, completed tasks = 3]
+2025-11-10 05:54:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 7, active threads = 1, queued tasks = 2, completed tasks = 4]
+2025-11-10 06:00:00 - Starting cleanup of expired uploads
+2025-11-10 06:00:00 - Found 30 expired uploads to clean up
+2025-11-10 06:00:00 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581930806-simulator_check.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581930806-after_longer_wait.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931602-sebastians_app.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931605-sebastians_main_app.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931742-after_navigation.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931742-main_app_loaded.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931875-after_dismiss.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931875-app_after_fixes.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931878-current_screen.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762581931877-final_fix_test.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619111137-simulator_check.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619111137-after_longer_wait.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619112631-sebastians_main_app.png
+2025-11-10 06:00:01 - Multipart upload aborted
+2025-11-10 06:00:01 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619112632-current_screen.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619112776-after_navigation.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619112776-sebastians_app.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619113494-main_app_loaded.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619113517-app_after_fixes.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619113495-final_fix_test.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619113520-after_dismiss.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619401364-sebastians_main_app.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619401364-after_longer_wait.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619402913-sebastians_app.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619402912-after_navigation.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619402928-main_app_loaded.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619402931-final_fix_test.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619403336-after_dismiss.png
+2025-11-10 06:00:02 - Multipart upload aborted
+2025-11-10 06:00:02 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619403336-app_after_fixes.png
+2025-11-10 06:00:03 - Multipart upload aborted
+2025-11-10 06:00:03 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619403502-current_screen.png
+2025-11-10 06:00:03 - Multipart upload aborted
+2025-11-10 06:00:03 - Aborting multipart upload for key: uploads/466394be-415c-4bfd-a612-885b2d1da6e0/1762619403502-simulator_check.png
+2025-11-10 06:00:03 - Multipart upload aborted
+2025-11-10 06:00:03 - Cleanup completed: 30 successful, 0 failed
+2025-11-10 06:24:08 - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 9, active threads = 1, queued tasks = 2, completed tasks = 6]

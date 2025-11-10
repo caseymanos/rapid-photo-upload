@@ -15,6 +15,7 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
   const queueRef = useRef<string[]>([]);
   const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
   const isProcessingRef = useRef(false);
+  const hasCalledCompleteRef = useRef(false);
 
   /**
    * Add files to upload queue (mobile version uses uri, filename, fileSize, mimeType)
@@ -22,13 +23,19 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
   const addFiles = useCallback((
     files: Array<{ uri: string; filename: string; fileSize: number; mimeType: string }>
   ) => {
+    console.log('Adding files to upload queue:', files.length);
+    // Reset the completion flag when new files are added
+    hasCalledCompleteRef.current = false;
+
     const newUploads = new Map(uploads);
     const newIds: string[] = [];
 
     files.forEach((file) => {
+      console.log('Processing file:', file.filename, 'Size:', file.fileSize);
       // Validate file
       const validation = uploadService.validateFile(file.fileSize, file.mimeType);
       if (!validation.valid) {
+        console.log('File validation failed:', validation.error);
         const id = Date.now().toString() + Math.random().toString(36).substring(2);
         newUploads.set(id, {
           id,
@@ -44,6 +51,7 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
       }
 
       const id = Date.now().toString() + Math.random().toString(36).substring(2);
+      console.log('File added to queue with ID:', id);
       newUploads.set(id, {
         id,
         uri: file.uri,
@@ -60,41 +68,52 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
 
     setUploads(newUploads);
 
-    // Start processing queue
-    setTimeout(() => processQueue(), 0);
-
     return newIds;
   }, [uploads]);
 
   /**
    * Process upload queue with concurrency control
+   * Properly leverages concurrency by starting multiple uploads in parallel
    */
   const processQueue = useCallback(async () => {
     // Prevent multiple simultaneous processing loops
-    if (isProcessingRef.current) return;
-    isProcessingRef.current = true;
-
-    while (queueRef.current.length > 0 && activeUploads < concurrency) {
-      const uploadId = queueRef.current.shift();
-      if (!uploadId) continue;
-
-      const uploadItem = uploads.get(uploadId);
-      if (!uploadItem) continue;
-
-      setActiveUploads((prev) => prev + 1);
-
-      // Create abort controller for this upload
-      const abortController = new AbortController();
-      abortControllersRef.current.set(uploadId, abortController);
-
-      // Update status to uploading
-      updateUploadStatus(uploadId, 'uploading');
-
-      // Start upload (don't await here to allow concurrent uploads)
-      uploadFile(uploadId, uploadItem, abortController.signal);
+    if (isProcessingRef.current) {
+      console.log('Already processing queue, skipping');
+      return;
     }
 
-    isProcessingRef.current = false;
+    console.log('Processing queue, items:', queueRef.current.length, 'active:', activeUploads, 'max:', concurrency);
+    isProcessingRef.current = true;
+
+    try {
+      // Start multiple uploads up to concurrency limit
+      while (queueRef.current.length > 0 && activeUploads < concurrency) {
+        const uploadId = queueRef.current.shift();
+        if (!uploadId) continue;
+
+        const uploadItem = uploads.get(uploadId);
+        if (!uploadItem) {
+          console.log('Upload item not found for ID:', uploadId);
+          continue;
+        }
+
+        console.log('Starting upload from queue:', uploadItem.filename);
+        setActiveUploads((prev) => prev + 1);
+
+        // Create abort controller for this upload
+        const abortController = new AbortController();
+        abortControllersRef.current.set(uploadId, abortController);
+
+        // Update status to uploading
+        updateUploadStatus(uploadId, 'uploading');
+
+        // Start upload (don't await here to allow concurrent uploads)
+        uploadFile(uploadId, uploadItem, abortController.signal);
+      }
+    } finally {
+      isProcessingRef.current = false;
+      console.log('Queue processing complete');
+    }
   }, [uploads, activeUploads, concurrency]);
 
   /**
@@ -102,6 +121,7 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
    */
   const uploadFile = async (uploadId: string, uploadItem: UploadItem, signal: AbortSignal) => {
     try {
+      console.log('Starting upload:', uploadItem.filename);
       const result = await uploadService.uploadFile(
         uploadItem.uri,
         uploadItem.filename,
@@ -109,6 +129,7 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
         uploadItem.mimeType,
         {
           onProgress: (progress) => {
+            console.log('Upload progress:', uploadItem.filename, progress + '%');
             updateUploadProgress(uploadId, progress);
           },
           signal,
@@ -131,6 +152,8 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
         return newUploads;
       });
     } catch (error: any) {
+      console.error('Upload failed for:', uploadItem.filename, error);
+      console.error('Error details:', error.message, error.response?.data);
       if (error.name === 'AbortError') {
         updateUploadStatus(uploadId, 'failed', 'Upload cancelled');
       } else {
@@ -240,6 +263,16 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
   }, []);
 
   /**
+   * Trigger queue processing when uploads or queue changes
+   */
+  useEffect(() => {
+    if (queueRef.current.length > 0 && activeUploads < concurrency) {
+      console.log('Triggering processQueue from useEffect');
+      processQueue();
+    }
+  }, [uploads, activeUploads, concurrency, processQueue]);
+
+  /**
    * Check if all uploads are complete
    */
   useEffect(() => {
@@ -250,7 +283,8 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
       (upload) => upload.status === 'completed' || upload.status === 'failed'
     );
 
-    if (allComplete && activeUploads === 0 && onAllComplete) {
+    if (allComplete && activeUploads === 0 && onAllComplete && !hasCalledCompleteRef.current) {
+      hasCalledCompleteRef.current = true;
       onAllComplete();
     }
   }, [uploads, activeUploads, onAllComplete]);

@@ -27,6 +27,11 @@ public class PhotoResponse {
     private String uploadStatus;
     private List<String> tags;
     private String thumbnailUrl;
+    private String thumbnailFallbackUrl;
+    private String placeholderUrl;
+    private String placeholderFallbackUrl;
+    private String placeholderBase64;
+    private String downloadUrl;
     private Instant createdAt;
     private Instant updatedAt;
 }

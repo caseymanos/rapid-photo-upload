@@ -1,8 +1,11 @@
 package com.rapidphotoupload.infrastructure.storage;
 
 import com.rapidphotoupload.application.dto.InitiateUploadResponse;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,11 +16,15 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedUploadPartRequest;
 import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +39,41 @@ public class S3StorageService {
     
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
+    private Cache<String, CachedDownloadUrl> downloadUrlCache;
     
     @Value("${aws.s3.bucket.name}")
     private String bucketName;
     
     @Value("${aws.s3.presigned-url.expiration-hours:2}")
     private int presignedUrlExpirationHours;
+    
+    @Value("${aws.s3.presigned-url.cache.max-size:2000}")
+    private long downloadUrlCacheMaxSize;
+    
+    @Value("${aws.s3.presigned-url.cache.buffer-seconds:60}")
+    private long cacheBufferSeconds;
+
+    @PostConstruct
+    void initializeCaches() {
+        rebuildDownloadCache();
+        log.info("Initialized S3 download URL cache (maxSize={}, ttl={}h)",
+            downloadUrlCacheMaxSize,
+            presignedUrlExpirationHours);
+    }
+
+    private synchronized void rebuildDownloadCache() {
+        this.downloadUrlCache = Caffeine.newBuilder()
+            .maximumSize(Math.max(100, downloadUrlCacheMaxSize))
+            .expireAfterWrite(Duration.ofHours(presignedUrlExpirationHours))
+            .build();
+    }
+
+    private Cache<String, CachedDownloadUrl> downloadCache() {
+        if (downloadUrlCache == null) {
+            rebuildDownloadCache();
+        }
+        return downloadUrlCache;
+    }
     
     /**
      * Initiate a multipart upload.
@@ -63,7 +99,30 @@ public class S3StorageService {
     }
     
     /**
+     * Generate a presigned PUT URL for small uploads.
+     */
+    @CircuitBreaker(name = "s3", fallbackMethod = "generatePresignedPutObjectUrlFallback")
+    @Retry(name = "s3")
+    public String generatePresignedPutObjectUrl(String s3Key, String contentType) {
+        Duration expiration = Duration.ofHours(presignedUrlExpirationHours);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(s3Key)
+            .contentType(contentType)
+            .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+            .signatureDuration(expiration)
+            .putObjectRequest(putObjectRequest)
+            .build();
+
+        return s3Presigner.presignPutObject(presignRequest).url().toString();
+    }
+
+    /**
      * Generate presigned URLs for uploading parts.
+     * Uses parallel streams for improved performance when generating multiple URLs.
      * @param s3Key the S3 object key
      * @param uploadId the multipart upload ID
      * @param numberOfParts total number of parts
@@ -75,33 +134,39 @@ public class S3StorageService {
             String uploadId, 
             int numberOfParts) {
         
+        long startTime = System.currentTimeMillis();
         log.info("Generating {} presigned URLs for key: {}", numberOfParts, s3Key);
         
-        List<InitiateUploadResponse.PresignedPartUrl> presignedUrls = new ArrayList<>();
         Duration expiration = Duration.ofHours(presignedUrlExpirationHours);
         
-        for (int partNumber = 1; partNumber <= numberOfParts; partNumber++) {
-            UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
-                .bucket(bucketName)
-                .key(s3Key)
-                .uploadId(uploadId)
-                .partNumber(partNumber)
-                .build();
-            
-            UploadPartPresignRequest presignRequest = UploadPartPresignRequest.builder()
-                .signatureDuration(expiration)
-                .uploadPartRequest(uploadPartRequest)
-                .build();
-            
-            PresignedUploadPartRequest presignedRequest = s3Presigner.presignUploadPart(presignRequest);
-            
-            presignedUrls.add(new InitiateUploadResponse.PresignedPartUrl(
-                partNumber,
-                presignedRequest.url().toString()
-            ));
-        }
+        // Parallelize URL generation for better performance
+        List<InitiateUploadResponse.PresignedPartUrl> presignedUrls = java.util.stream.IntStream
+            .rangeClosed(1, numberOfParts)
+            .parallel()
+            .mapToObj(partNumber -> {
+                UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+                    .bucket(bucketName)
+                    .key(s3Key)
+                    .uploadId(uploadId)
+                    .partNumber(partNumber)
+                    .build();
+                
+                UploadPartPresignRequest presignRequest = UploadPartPresignRequest.builder()
+                    .signatureDuration(expiration)
+                    .uploadPartRequest(uploadPartRequest)
+                    .build();
+                
+                PresignedUploadPartRequest presignedRequest = s3Presigner.presignUploadPart(presignRequest);
+                
+                return new InitiateUploadResponse.PresignedPartUrl(
+                    partNumber,
+                    presignedRequest.url().toString()
+                );
+            })
+            .collect(Collectors.toList());
         
-        log.info("Generated {} presigned URLs", presignedUrls.size());
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("Generated {} presigned URLs in {}ms (parallel)", presignedUrls.size(), duration);
         return presignedUrls;
     }
     
@@ -115,6 +180,7 @@ public class S3StorageService {
     @CircuitBreaker(name = "s3", fallbackMethod = "completeMultipartUploadFallback")
     @Retry(name = "s3")
     public String completeMultipartUpload(String s3Key, String uploadId, List<CompletedPart> parts) {
+        long startTime = System.currentTimeMillis();
         log.info("Completing multipart upload for key: {} with {} parts", s3Key, parts.size());
         
         List<software.amazon.awssdk.services.s3.model.CompletedPart> s3Parts = parts.stream()
@@ -137,7 +203,8 @@ public class S3StorageService {
         
         CompleteMultipartUploadResponse response = s3Client.completeMultipartUpload(request);
         
-        log.info("Multipart upload completed with ETag: {}", response.eTag());
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("Multipart upload completed with ETag: {} in {}ms", response.eTag(), duration);
         return response.eTag();
     }
     
@@ -181,8 +248,54 @@ public class S3StorageService {
         log.info("Object deleted");
     }
     
+    /**
+     * Generate a presigned download URL for an S3 object.
+     * @param s3Key the S3 object key
+     * @return the presigned download URL
+     */
+    @CircuitBreaker(name = "s3", fallbackMethod = "generatePresignedDownloadUrlFallback")
+    @Retry(name = "s3")
+    public String generatePresignedDownloadUrl(String s3Key) {
+        log.debug("Generating presigned download URL for key: {}", s3Key);
+
+        CachedDownloadUrl cached = downloadCache().getIfPresent(s3Key);
+        if (isCachedUrlValid(cached)) {
+            log.trace("Using cached presigned download URL for key: {}", s3Key);
+            return cached.url();
+        }
+
+        Duration expiration = Duration.ofHours(presignedUrlExpirationHours);
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+            .bucket(bucketName)
+            .key(s3Key)
+            .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+            .signatureDuration(expiration)
+            .getObjectRequest(getObjectRequest)
+            .build();
+
+        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+
+        String presignedUrl = presignedRequest.url().toString();
+        Instant expiresAt = Instant.now().plus(expiration);
+        downloadCache().put(s3Key, new CachedDownloadUrl(presignedUrl, expiresAt));
+        log.debug("Generated presigned download URL (expires in {} hours)", presignedUrlExpirationHours);
+
+        return presignedUrl;
+    }
+
     public String getBucketName() {
         return bucketName;
+    }
+
+    private boolean isCachedUrlValid(CachedDownloadUrl cached) {
+        if (cached == null) {
+            return false;
+        }
+        Instant safetyCutoff = Instant.now().plusSeconds(Math.max(0, cacheBufferSeconds));
+        return cached.expiresAt().isAfter(safetyCutoff);
     }
     
     // Fallback methods
@@ -195,6 +308,11 @@ public class S3StorageService {
     private List<InitiateUploadResponse.PresignedPartUrl> generatePresignedUploadUrlsFallback(
             String s3Key, String uploadId, int numberOfParts, Throwable throwable) {
         log.error("Failed to generate presigned URLs for key: {}", s3Key, throwable);
+        throw new RuntimeException("S3 service unavailable", throwable);
+    }
+
+    private String generatePresignedPutObjectUrlFallback(String s3Key, String contentType, Throwable throwable) {
+        log.error("Failed to generate simple upload URL for key: {}", s3Key, throwable);
         throw new RuntimeException("S3 service unavailable", throwable);
     }
     
@@ -212,6 +330,13 @@ public class S3StorageService {
         log.error("Failed to delete object with key: {}", s3Key, throwable);
         throw new RuntimeException("S3 service unavailable", throwable);
     }
+
+    private String generatePresignedDownloadUrlFallback(String s3Key, Throwable throwable) {
+        log.error("Failed to generate presigned download URL for key: {}", s3Key, throwable);
+        return null; // Return null instead of throwing to allow graceful degradation
+    }
+    
+    private record CachedDownloadUrl(String url, Instant expiresAt) {}
     
     /**
      * Represents a completed part in a multipart upload.

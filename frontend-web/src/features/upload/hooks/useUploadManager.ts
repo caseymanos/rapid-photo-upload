@@ -60,34 +60,46 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
 
   /**
    * Process upload queue with concurrency control
+   * Properly leverages concurrency by starting multiple uploads in parallel
    */
   const processQueue = useCallback(async () => {
     // Prevent multiple simultaneous processing loops
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
 
-    while (queueRef.current.length > 0 && activeUploads < concurrency) {
-      const uploadId = queueRef.current.shift();
-      if (!uploadId) continue;
+    try {
+      // Start multiple uploads up to concurrency limit
+      while (queueRef.current.length > 0 && activeUploads < concurrency) {
+        const uploadId = queueRef.current.shift();
+        if (!uploadId) continue;
 
-      const uploadItem = uploads.get(uploadId);
-      if (!uploadItem) continue;
+        setUploads((currentUploads) => {
+          const uploadItem = currentUploads.get(uploadId);
+          if (!uploadItem) return currentUploads;
 
-      setActiveUploads((prev) => prev + 1);
+          setActiveUploads((prev) => prev + 1);
 
-      // Create abort controller for this upload
-      const abortController = new AbortController();
-      abortControllersRef.current.set(uploadId, abortController);
+          // Create abort controller for this upload
+          const abortController = new AbortController();
+          abortControllersRef.current.set(uploadId, abortController);
 
-      // Update status to uploading
-      updateUploadStatus(uploadId, 'uploading');
+          // Update status to uploading
+          const newUploads = new Map(currentUploads);
+          const upload = newUploads.get(uploadId);
+          if (upload) {
+            newUploads.set(uploadId, { ...upload, status: 'uploading' });
+          }
 
-      // Start upload (don't await here to allow concurrent uploads)
-      uploadFile(uploadId, uploadItem.file, abortController.signal);
+          // Start upload (don't await here to allow concurrent uploads)
+          uploadFile(uploadId, uploadItem.file, abortController.signal);
+
+          return newUploads;
+        });
+      }
+    } finally {
+      isProcessingRef.current = false;
     }
-
-    isProcessingRef.current = false;
-  }, [uploads, activeUploads, concurrency]);
+  }, [activeUploads, concurrency]);
 
   /**
    * Upload individual file

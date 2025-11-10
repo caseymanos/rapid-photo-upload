@@ -41,4 +41,18 @@ public class AsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "thumbnailExecutor")
+    public Executor thumbnailExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("thumbnail-async-");
+        executor.setRejectedExecutionHandler(new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(120);
+        executor.initialize();
+        return executor;
+    }
 }

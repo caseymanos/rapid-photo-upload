@@ -28,7 +28,11 @@ public class CreateSessionHandler {
         log.info("Creating upload session for user {}", command.getUserId());
         
         // Create new session
-        UploadSession session = new UploadSession(UUID.randomUUID(), command.getUserId());
+        UploadSession session = new UploadSession(
+            UUID.randomUUID(),
+            command.getUserId(),
+            command.getExpectedPhotoCount()
+        );
         
         // Save session
         UploadSession savedSession = uploadSessionRepository.save(session);

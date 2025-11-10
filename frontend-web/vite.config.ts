@@ -10,12 +10,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-    },
+    port: 3004,
+    // Development server configuration
+    // For production deployment, API calls go directly to VITE_API_BASE_URL
   },
 });

@@ -416,12 +416,12 @@ All endpoints are defined in `src/shared/api/endpoints.ts` and automatically use
 
 ### Multipart Upload Flow
 
-1. Call `uploadApi.initiateUpload()` with filename, fileSize, mimeType
-2. Receive uploadId, photoId, and array of presignedUrls
+1. Call `uploadApi.initiateUpload()` with originalFilename, fileSizeBytes, mimeType
+2. Receive multipartUploadId, photoId, and array of presignedUrls
 3. Split file into 5MB chunks using expo-file-system
 4. Upload each chunk via PUT to its presigned URL (parallel)
 5. Extract ETag from response headers
-6. Call `uploadApi.completeUpload()` with photoId, uploadId, and parts array
+6. Call `uploadApi.completeUpload()` with photoId and parts array
 
 **Implementation:** See `src/features/upload/services/uploadService.ts`
 

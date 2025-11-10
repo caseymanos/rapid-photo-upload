@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -7,8 +7,15 @@ export const RegisterForm = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [validationError, setValidationError] = useState('');
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const { register, isLoading, error, clearError, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

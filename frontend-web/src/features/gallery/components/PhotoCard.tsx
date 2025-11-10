@@ -1,19 +1,62 @@
+import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { PhotoResponse } from '@/shared/types';
+import { usePhotoDownloadUrl } from '../hooks/usePhotoDownloadUrl';
 
 interface PhotoCardProps {
   photo: PhotoResponse;
   onClick: () => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelect?: () => void;
+  observerRoot?: Element | null;
+  style?: CSSProperties;
 }
 
-export const PhotoCard = ({ photo, onClick }: PhotoCardProps) => {
-  const getPhotoUrl = (photo: PhotoResponse) => {
-    // Use thumbnail if available, otherwise construct S3 URL
-    if (photo.thumbnailUrl) {
-      return photo.thumbnailUrl;
+export const PhotoCard = ({
+  photo,
+  onClick,
+  selectable = false,
+  selected = false,
+  onSelect,
+  observerRoot = null,
+  style,
+}: PhotoCardProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const shouldFetchFullImage = !photo.thumbnailUrl;
+  const { url, fetchUrl } = usePhotoDownloadUrl(photo.id, photo.downloadUrl);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { root: observerRoot, rootMargin: '200px 0px' }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [observerRoot]);
+
+  useEffect(() => {
+    if (isVisible && shouldFetchFullImage && !url) {
+      fetchUrl();
     }
-    // Construct CloudFront/S3 URL
-    return `https://${photo.s3Bucket}.s3.amazonaws.com/${photo.s3Key}`;
-  };
+  }, [fetchUrl, isVisible, shouldFetchFullImage, url]);
+
+  const displayUrl = photo.thumbnailUrl || url;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -28,23 +71,73 @@ export const PhotoCard = ({ photo, onClick }: PhotoCardProps) => {
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   };
 
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (selectable) {
+      event.stopPropagation();
+      onSelect?.();
+    } else {
+      onClick();
+    }
+  };
+
   return (
     <div
-      onClick={onClick}
-      className="group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      ref={containerRef}
+      onClick={handleClick}
+      data-selected={selected}
+      style={style}
+      className={`group relative bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-shadow ${
+        selected ? 'border-2 border-primary-500 shadow-lg' : 'border border-gray-200 hover:shadow-md'
+      }`}
     >
+      {/* Selection checkbox */}
+      {selectable && (
+        <div className="absolute top-2 left-2 z-10">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect?.();
+            }}
+            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+              selected ? 'bg-primary-600 border-primary-600' : 'bg-white border-gray-300 group-hover:border-gray-400'
+            }`}
+            aria-pressed={selected}
+          >
+            {selected && (
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Image */}
       <div className="aspect-square bg-gray-100">
-        <img
-          src={getPhotoUrl(photo)}
-          alt={photo.originalFilename}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+        {displayUrl ? (
+          <img
+            src={displayUrl}
+            alt={photo.originalFilename}
+            className="w-full h-full object-cover transition-opacity duration-300"
+            loading="lazy"
+            onError={(e) => {
+              // Fallback to placeholder on error
+              e.currentTarget.src = '/placeholder-image.png';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full animate-pulse bg-gray-200" />
+        )}
       </div>
 
       {/* Overlay on hover */}
-      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+      {!selectable && (
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
         <svg
           className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
           fill="none"
@@ -64,7 +157,8 @@ export const PhotoCard = ({ photo, onClick }: PhotoCardProps) => {
             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
           />
         </svg>
-      </div>
+        </div>
+      )}
 
       {/* Info */}
       <div className="p-3">

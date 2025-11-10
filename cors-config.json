@@ -1,9 +1,17 @@
-[
-  {
-    "AllowedHeaders": ["*"],
-    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-    "AllowedOrigins": ["http://localhost:3000", "http://localhost:8080"],
-    "ExposeHeaders": ["ETag"],
-    "MaxAgeSeconds": 3000
-  }
-]
+{
+  "CORSRules": [
+    {
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+      "AllowedOrigins": [
+        "http://localhost:3000",
+        "http://localhost:3004",
+        "http://localhost:8080",
+        "http://localhost:19006",
+        "https://d1zdygwm501yvh.cloudfront.net"
+      ],
+      "ExposeHeaders": ["ETag"],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}

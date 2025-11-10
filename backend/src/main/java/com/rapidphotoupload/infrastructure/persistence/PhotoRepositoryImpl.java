@@ -100,8 +100,13 @@ public class PhotoRepositoryImpl implements PhotoRepository {
             entity.getUploadExpiresAt(),
             metadata,
             entity.getThumbnailUrl(),
+            entity.getThumbnailFallbackUrl(),
+            entity.getPlaceholderUrl(),
+            entity.getPlaceholderFallbackUrl(),
+            entity.getPlaceholderBase64(),
             entity.getCreatedAt(),
-            entity.getUpdatedAt()
+            entity.getUpdatedAt(),
+            entity.getVersion()
         );
         
         return photo;
@@ -123,8 +128,13 @@ public class PhotoRepositoryImpl implements PhotoRepository {
         entity.setUploadExpiresAt(photo.getUploadExpiresAt());
         entity.setTags(photo.getMetadata().getTags());
         entity.setThumbnailUrl(photo.getThumbnailUrl());
+        entity.setThumbnailFallbackUrl(photo.getThumbnailFallbackUrl());
+        entity.setPlaceholderUrl(photo.getPlaceholderUrl());
+        entity.setPlaceholderFallbackUrl(photo.getPlaceholderFallbackUrl());
+        entity.setPlaceholderBase64(photo.getPlaceholderBase64());
         entity.setCreatedAt(photo.getCreatedAt());
         entity.setUpdatedAt(photo.getUpdatedAt());
+        entity.setVersion(photo.getVersion());
         return entity;
     }
 }

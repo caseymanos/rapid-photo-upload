@@ -30,7 +30,10 @@ public class InitiateUploadHandler {
     private final UploadSessionRepository uploadSessionRepository;
     private final S3StorageService s3StorageService;
     
-    private static final long PART_SIZE = 5 * 1024 * 1024; // 5MB chunks
+    private static final long MIN_PART_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    private static final long TARGET_PART_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
+    private static final long SIMPLE_UPLOAD_THRESHOLD_BYTES = 25 * 1024 * 1024; // 25MB
+    private static final int MAX_PARTS = 10;
     
     @Transactional
     public InitiateUploadResponse handle(InitiateUploadCommand command) {
@@ -62,17 +65,37 @@ public class InitiateUploadHandler {
             command.getTags().forEach(photo::addTag);
         }
         
-        // Calculate number of parts needed
-        int totalParts = (int) Math.ceil((double) command.getFileSizeBytes() / PART_SIZE);
-        
-        // Initiate multipart upload in S3
-        String multipartUploadId = s3StorageService.initiateMultipartUpload(
-            photo.getS3Key(),
-            command.getMimeType()
-        );
-        
-        photo.initiateUpload(multipartUploadId);
-        
+        boolean singlePartUpload = command.getFileSizeBytes() <= SIMPLE_UPLOAD_THRESHOLD_BYTES;
+        long chunkSizeBytes = singlePartUpload
+            ? Math.max(MIN_PART_SIZE_BYTES, command.getFileSizeBytes())
+            : determineChunkSize(command.getFileSizeBytes());
+
+        String multipartUploadId = null;
+        List<InitiateUploadResponse.PresignedPartUrl> presignedUrls;
+
+        if (singlePartUpload) {
+            photo.initiateUpload(null);
+            String putUrl = s3StorageService.generatePresignedPutObjectUrl(
+                photo.getS3Key(),
+                command.getMimeType()
+            );
+            presignedUrls = List.of(new InitiateUploadResponse.PresignedPartUrl(1, putUrl));
+        } else {
+            int totalParts = (int) Math.ceil((double) command.getFileSizeBytes() / chunkSizeBytes);
+
+            multipartUploadId = s3StorageService.initiateMultipartUpload(
+                photo.getS3Key(),
+                command.getMimeType()
+            );
+            photo.initiateUpload(multipartUploadId);
+
+            presignedUrls = s3StorageService.generatePresignedUploadUrls(
+                photo.getS3Key(),
+                multipartUploadId,
+                totalParts
+            );
+        }
+
         // Set expiration (2 hours)
         Instant expiresAt = Instant.now().plus(2, ChronoUnit.HOURS);
         photo.setUploadExpiresAt(expiresAt);
@@ -80,22 +103,17 @@ public class InitiateUploadHandler {
         // Save photo
         Photo savedPhoto = photoRepository.save(photo);
         
-        // Generate presigned URLs for each part
-        List<InitiateUploadResponse.PresignedPartUrl> presignedUrls = 
-            s3StorageService.generatePresignedUploadUrls(
-                photo.getS3Key(),
-                multipartUploadId,
-                totalParts
-            );
-        
-        log.info("Upload initiated for photo {} with {} parts", savedPhoto.getId(), totalParts);
+        log.info("Upload initiated for photo {} with strategy {} (chunkSize={} bytes)", savedPhoto.getId(),
+            singlePartUpload ? "SINGLE" : "MULTIPART", chunkSizeBytes);
         
         return new InitiateUploadResponse(
             savedPhoto.getId(),
             savedPhoto.getS3Key(),
             multipartUploadId,
             presignedUrls,
-            expiresAt
+            expiresAt,
+            singlePartUpload,
+            chunkSizeBytes
         );
     }
     
@@ -103,5 +121,14 @@ public class InitiateUploadHandler {
         String timestamp = String.valueOf(Instant.now().toEpochMilli());
         String sanitizedFilename = filename.replaceAll("[^a-zA-Z0-9._-]", "_");
         return String.format("uploads/%s/%s-%s", userId, timestamp, sanitizedFilename);
+    }
+
+    private long determineChunkSize(long fileSizeBytes) {
+        long chunkSize = TARGET_PART_SIZE_BYTES;
+        long estimatedParts = (long) Math.ceil((double) fileSizeBytes / chunkSize);
+        if (estimatedParts > MAX_PARTS) {
+            chunkSize = (long) Math.ceil((double) fileSizeBytes / MAX_PARTS);
+        }
+        return Math.max(MIN_PART_SIZE_BYTES, chunkSize);
     }
 }

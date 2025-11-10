@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "0c0c44013a1c691af2551efa93877a6100f0802894ffb3e12d0e4b7a195ed98b": {
+      "displayName": "rapid-photo-upload-dev-monitoring Template",
+      "source": {
+        "path": "rapid-photo-upload-dev-monitoring.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "971422717446-us-east-1-ad666d75": {
+          "bucketName": "cdk-hnb659fds-assets-971422717446-us-east-1",
+          "objectKey": "0c0c44013a1c691af2551efa93877a6100f0802894ffb3e12d0e4b7a195ed98b.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-file-publishing-role-971422717446-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

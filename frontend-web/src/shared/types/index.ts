@@ -8,14 +8,16 @@ export interface AuthResponse {
 export interface PresignedUrl {
   partNumber: number;
   url: string;
-  expiration: string;
 }
 
 export interface InitiateUploadResponse {
   photoId: string;
-  uploadId: string;
   s3Key: string;
+  multipartUploadId: string;
   presignedUrls: PresignedUrl[];
+  expiresAt?: string;
+  singlePartUpload?: boolean;
+  chunkSizeBytes?: number;
 }
 
 export interface PhotoResponse {
@@ -32,8 +34,21 @@ export interface PhotoResponse {
   tags: string[];
   metadata: PhotoMetadata;
   thumbnailUrl?: string;
+  thumbnailFallbackUrl?: string;
+  placeholderUrl?: string;
+  placeholderFallbackUrl?: string;
+  placeholderBase64?: string;
+  downloadUrl?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PaginatedPhotosResponse {
+  items: PhotoResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  hasNext: boolean;
 }
 
 export interface PhotoMetadata {
@@ -84,7 +99,7 @@ export interface LoginRequest {
 }
 
 export interface InitiateUploadRequest {
-  filename: string;
+  originalFilename: string;
   fileSizeBytes: number;
   mimeType: string;
   uploadSessionId?: string;
@@ -96,7 +111,6 @@ export interface CompletedPart {
 }
 
 export interface CompleteUploadRequest {
-  uploadId: string;
   parts: CompletedPart[];
 }
 

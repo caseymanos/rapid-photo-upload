@@ -6,6 +6,7 @@ import { GalleryPage } from './features/gallery/pages/GalleryPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { useAuthStore } from './features/auth/store/authStore';
+import { PhotoCacheProvider } from './features/gallery/context/PhotoCacheContext';
 import { useEffect } from 'react';
 
 function App() {
@@ -16,8 +17,9 @@ function App() {
   }, [checkAuth]);
 
   return (
-    <BrowserRouter>
-      <Layout>
+    <PhotoCacheProvider>
+      <BrowserRouter>
+        <Layout>
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginForm />} />
@@ -44,8 +46,9 @@ function App() {
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Layout>
-    </BrowserRouter>
+        </Layout>
+      </BrowserRouter>
+    </PhotoCacheProvider>
   );
 }
 

@@ -1,7 +1,7 @@
 import { uploadApi } from '@/shared/api/endpoints';
 import { InitiateUploadRequest, CompletedPart, PresignedUrl } from '@/shared/types';
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB fallback
 
 export interface UploadOptions {
   onProgress?: (progress: number) => void;
@@ -17,31 +17,61 @@ export interface UploadResult {
 class UploadService {
   /**
    * Main upload function that coordinates the entire multipart upload process
+   * Includes performance instrumentation
    */
   async uploadFile(file: File, options: UploadOptions = {}): Promise<UploadResult> {
+    const overallStart = performance.now();
+    const perfMetrics = {
+      initiate: 0,
+      upload: 0,
+      complete: 0,
+    };
+
     try {
       // Step 1: Initiate upload with backend
+      const initStart = performance.now();
       const initRequest: InitiateUploadRequest = {
-        filename: file.name,
+        originalFilename: file.name,
         fileSizeBytes: file.size,
         mimeType: file.type,
       };
 
       const { data: initResponse } = await uploadApi.initiateUpload(initRequest);
-      const { photoId, uploadId, s3Key, presignedUrls } = initResponse;
+      const { photoId, multipartUploadId, s3Key, presignedUrls } = initResponse;
+      const chunkSize = initResponse.chunkSizeBytes ?? DEFAULT_CHUNK_SIZE;
+      const uploadMode = initResponse.singlePartUpload ? 'single-part' : 'multipart';
+      perfMetrics.initiate = performance.now() - initStart;
 
       // Step 2: Upload parts directly to S3 in parallel
-      const uploadedParts = await this.uploadParts(file, presignedUrls, options);
+      const uploadStart = performance.now();
+      const uploadedParts = await this.uploadParts(file, presignedUrls, chunkSize, options);
+      perfMetrics.upload = performance.now() - uploadStart;
 
       // Step 3: Complete the upload with backend
+      const completeStart = performance.now();
       await uploadApi.completeUpload(photoId, {
-        uploadId,
         parts: uploadedParts,
       });
+      perfMetrics.complete = performance.now() - completeStart;
 
+      const totalDuration = performance.now() - overallStart;
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      const throughputMbps = ((file.size * 8) / (perfMetrics.upload / 1000) / 1000000).toFixed(2);
+
+      console.log(
+        `[Performance] Upload complete for ${file.name} (${fileSizeMB}MB, ${uploadMode}):\n` +
+        `  Total: ${totalDuration.toFixed(0)}ms\n` +
+        `  Initiate: ${perfMetrics.initiate.toFixed(0)}ms\n` +
+        `  Upload: ${perfMetrics.upload.toFixed(0)}ms (${throughputMbps} Mbps)\n` +
+        `  Complete: ${perfMetrics.complete.toFixed(0)}ms`
+      );
+
+      // Keep return shape backward-compatible for any callers
+      const uploadId = multipartUploadId;
       return { photoId, uploadId, s3Key };
     } catch (error) {
-      console.error('Upload failed:', error);
+      const totalDuration = performance.now() - overallStart;
+      console.error(`Upload failed after ${totalDuration.toFixed(0)}ms:`, error);
       throw error;
     }
   }
@@ -52,9 +82,10 @@ class UploadService {
   private async uploadParts(
     file: File,
     presignedUrls: PresignedUrl[],
+    chunkSize: number,
     options: UploadOptions
   ): Promise<CompletedPart[]> {
-    const chunks = this.splitFile(file, CHUNK_SIZE);
+    const chunks = this.splitFile(file, chunkSize);
     const totalParts = presignedUrls.length;
     let completedParts = 0;
 

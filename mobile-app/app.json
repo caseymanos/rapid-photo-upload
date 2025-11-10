@@ -4,12 +4,10 @@
     "slug": "rapid-photo-upload",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+    "extra": {
+      "apiUrl": "http://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/api/v1",
+      "wsUrl": "ws://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/ws"
     },
     "ios": {
       "supportsTablet": true,
@@ -20,10 +18,6 @@
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.rapidphotoupload.app",
       "permissions": [
         "CAMERA",
@@ -31,9 +25,7 @@
         "WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+    "web": {},
     "plugins": [
       "expo-image-picker",
       "expo-file-system"

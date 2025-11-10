@@ -215,7 +215,7 @@ Complete TypeScript coverage:
 - `POST /api/v1/auth/login` → Returns JWT token
 
 **Upload:**
-- `POST /api/v1/uploads/initiate` → Returns uploadId, photoId, presignedUrls
+- `POST /api/v1/uploads/initiate` → Returns multipartUploadId, photoId, presignedUrls
 - `POST /api/v1/uploads/{photoId}/complete` → Finalizes multipart upload
 
 **Photos:**

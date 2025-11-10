@@ -9,6 +9,7 @@ import {
   PhotoResponse,
   UpdatePhotoMetadataRequest,
   SessionStatusResponse,
+  PaginatedPhotosResponse,
 } from '../types';
 
 // Auth endpoints
@@ -37,15 +38,33 @@ export const uploadApi = {
 };
 
 // Photo endpoints
+type GetPhotosParams = {
+  page?: number;
+  size?: number;
+  includeDownloadUrl?: boolean;
+};
+
 export const photoApi = {
-  getPhotos: (page = 0, size = 50) =>
-    apiClient.get<PhotoResponse[]>('/photos', {
-      params: { page, size },
+  getPhotos: ({ page = 0, size = 30, includeDownloadUrl = false }: GetPhotosParams = {}) =>
+    apiClient.get<PaginatedPhotosResponse>('/photos', {
+      params: { page, size, includeDownloadUrl },
     }),
 
   getPhotoById: (photoId: string) =>
     apiClient.get<PhotoResponse>(`/photos/${photoId}`),
 
+  getPhotoDownloadUrl: (photoId: string) =>
+    apiClient.get<{ downloadUrl: string }>(`/photos/${photoId}/download-url`),
+
   updatePhotoMetadata: (photoId: string, data: UpdatePhotoMetadataRequest) =>
     apiClient.put<PhotoResponse>(`/photos/${photoId}/metadata`, data),
+
+  deletePhoto: (photoId: string) =>
+    apiClient.delete<void>(`/photos/${photoId}`),
+
+  deletePhotos: (photoIds: string[]) =>
+    apiClient.delete<void>('/photos/batch', { data: { photoIds } }),
+
+  deleteAllPhotos: () =>
+    apiClient.delete<{ deletedCount: number }>('/photos'),
 };

@@ -1,0 +1,494 @@
+{
+ "Description": "RDS PostgreSQL infrastructure for rapid-photo-upload dev",
+ "Resources": {
+  "DatabaseSecret86DBB7B3": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "Database credentials for rapid-photo-upload dev",
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "IncludeSpace": false,
+     "PasswordLength": 32,
+     "SecretStringTemplate": "{\"username\":\"rapidphoto_admin\"}"
+    },
+    "Name": "rapid-photo-upload-dev-db-credentials",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/DatabaseSecret/Resource"
+   }
+  },
+  "DatabaseSecretAttachment9A63A3D4": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DatabaseSecret86DBB7B3"
+    },
+    "TargetId": {
+     "Ref": "DatabaseB269D8BB"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/DatabaseSecret/Attachment/Resource"
+   }
+  },
+  "DatabaseSubnetGroup7D60F180": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for Database database",
+    "SubnetIds": [
+     "subnet-0dcbb744fa27d655a",
+     "subnet-0ec51c4b01051563c",
+     "subnet-022c1189cdbc888b5",
+     "subnet-06bf4817afa42342a",
+     "subnet-00b7d6dbd598ca211",
+     "subnet-05537dea7b585b315"
+    ],
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/Database/SubnetGroup/Default"
+   }
+  },
+  "DatabaseB269D8BB": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "AutoMinorVersionUpgrade": true,
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t4g.micro",
+    "DBInstanceIdentifier": "rapid-photo-upload-dev-db",
+    "DBName": "rapidphotoupload",
+    "DBSubnetGroupName": {
+     "Ref": "DatabaseSubnetGroup7D60F180"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "EnableCloudwatchLogsExports": [
+     "postgresql",
+     "upgrade"
+    ],
+    "EnablePerformanceInsights": false,
+    "Engine": "postgres",
+    "EngineVersion": "15",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MaxAllocatedStorage": 100,
+    "MultiAZ": false,
+    "PubliclyAccessible": true,
+    "StorageEncrypted": true,
+    "StorageType": "gp2",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "VPCSecurityGroups": [
+     {
+      "Fn::ImportValue": "rapid-photo-upload-dev-network:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/Database/Resource"
+   }
+  },
+  "DatabaseLogRetentionpostgresqlFBE8A947": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/rds/instance/",
+       {
+        "Ref": "DatabaseB269D8BB"
+       },
+       "/postgresql"
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/Database/LogRetentionpostgresql/Resource"
+   }
+  },
+  "DatabaseLogRetentionupgrade5EE08DCB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/rds/instance/",
+       {
+        "Ref": "DatabaseB269D8BB"
+       },
+       "/upgrade"
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/Database/LogRetentionupgrade/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:DeleteRetentionPolicy",
+        "logs:PutRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs22.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-971422717446-us-east-1",
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ]
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WMUU+DQBCEf0vfj5XSX1BsYkyaaKDvzXKs5xXYa2732hjCfzeAGqNP38zO7BRQFAXkG7xLZtsu630DY61oO4N3OY9CNpLKgIyOIoz14s3jG3+pFSeMjnSvivZ9IP5V+JtMJrYC4wEVGxR6ZlFkS6ZODZM+xZCu8/Oh/Hf4rk6mD07gGFxFSqw+sJHdGUVIBfYzjOygTLYjLVHIeBxgrEJP89DC19B7+zHbVU3TEpGEFC2ZH7Gs1YrOs5sbL0mvSSfDoSW4yMOtyGG7hXxzEe+zmFj9QFCt/ATsUD5KXAEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-database/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DatabaseEndpoint": {
+   "Description": "Database endpoint address",
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-db-endpoint"
+   }
+  },
+  "DatabasePort": {
+   "Description": "Database port",
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Port"
+    ]
+   }
+  },
+  "DatabaseName": {
+   "Description": "Database name",
+   "Value": "rapidphotoupload"
+  },
+  "DatabaseSecretArn": {
+   "Description": "Database credentials secret ARN",
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-db-secret-arn"
+   }
+  },
+  "DatabaseUrl": {
+   "Description": "JDBC connection URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "jdbc:postgresql://",
+      {
+       "Fn::GetAtt": [
+        "DatabaseB269D8BB",
+        "Endpoint.Address"
+       ]
+      },
+      ":",
+      {
+       "Fn::GetAtt": [
+        "DatabaseB269D8BB",
+        "Endpoint.Port"
+       ]
+      },
+      "/rapidphotoupload"
+     ]
+    ]
+   }
+  },
+  "ExportsOutputFnGetAttDatabaseB269D8BBEndpointAddressA4DBD059": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-database:ExportsOutputFnGetAttDatabaseB269D8BBEndpointAddressA4DBD059"
+   }
+  },
+  "ExportsOutputFnGetAttDatabaseB269D8BBEndpointPort3ACB3F51": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Port"
+    ]
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-database:ExportsOutputFnGetAttDatabaseB269D8BBEndpointPort3ACB3F51"
+   }
+  },
+  "ExportsOutputRefDatabaseSecret86DBB7B353068790": {
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+   }
+  },
+  "ExportsOutputRefDatabaseB269D8BB88F4B1C4": {
+   "Value": {
+    "Ref": "DatabaseB269D8BB"
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

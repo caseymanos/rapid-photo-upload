@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import { PhotoResponse } from '@/shared/types';
+import { usePhotoDownloadUrl } from '../hooks/usePhotoDownloadUrl';
 
 interface PhotoModalProps {
   photo: PhotoResponse;
   onClose: () => void;
   onUpdate: (tags: string[], metadata: any) => Promise<void>;
+  onDelete?: (photoId: string) => Promise<void>;
 }
 
-export const PhotoModal = ({ photo, onClose, onUpdate }: PhotoModalProps) => {
+export const PhotoModal = ({ photo, onClose, onUpdate, onDelete }: PhotoModalProps) => {
   const [tags, setTags] = useState<string[]>(photo.tags || []);
   const [newTag, setNewTag] = useState('');
   const [description, setDescription] = useState(photo.metadata?.description || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { url, fetchUrl, isLoading } = usePhotoDownloadUrl(photo.id, photo.downloadUrl);
 
   useEffect(() => {
     // Prevent body scroll when modal is open
@@ -21,9 +26,11 @@ export const PhotoModal = ({ photo, onClose, onUpdate }: PhotoModalProps) => {
     };
   }, []);
 
-  const getPhotoUrl = (photo: PhotoResponse) => {
-    return `https://${photo.s3Bucket}.s3.amazonaws.com/${photo.s3Key}`;
-  };
+  useEffect(() => {
+    if (!url) {
+      fetchUrl();
+    }
+  }, [url, fetchUrl]);
 
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
@@ -52,6 +59,20 @@ export const PhotoModal = ({ photo, onClose, onUpdate }: PhotoModalProps) => {
   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(photo.id);
+      onClose();
+    } catch (error) {
+      alert('Failed to delete photo');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -84,11 +105,24 @@ export const PhotoModal = ({ photo, onClose, onUpdate }: PhotoModalProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Image */}
             <div className="lg:col-span-2">
-              <img
-                src={getPhotoUrl(photo)}
-                alt={photo.originalFilename}
-                className="w-full h-auto rounded-lg"
-              />
+              {url ? (
+                <img
+                  src={url}
+                  alt={photo.originalFilename}
+                  className="w-full h-auto rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder-image.png';
+                  }}
+                />
+              ) : (
+                <div className="w-full aspect-video rounded-lg bg-gray-200 animate-pulse">
+                  {isLoading && (
+                    <div className="h-full w-full flex items-center justify-center text-gray-500 text-sm">
+                      Loading photo...
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Metadata */}
@@ -190,20 +224,60 @@ export const PhotoModal = ({ photo, onClose, onUpdate }: PhotoModalProps) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium disabled:opacity-50"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+        <div className="flex flex-wrap items-center gap-3 p-4 border-t border-gray-200">
+          {onDelete && (
+            <div className="flex items-center gap-3 mr-auto">
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-4 py-2 border border-red-300 rounded-md text-red-700 hover:bg-red-50 font-medium flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                  Delete Photo
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-700">Delete this photo?</span>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium disabled:opacity-50"
+                  >
+                    {isDeleting ? 'Deleting...' : 'Confirm'}
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={isDeleting}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

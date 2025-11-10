@@ -2,9 +2,13 @@ import { useUploadManager } from '../hooks/useUploadManager';
 import { UploadZone } from '../components/UploadZone';
 import { UploadProgressList } from '../components/UploadProgressList';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { photoApi } from '@/shared/api/endpoints';
+import { usePhotoCache } from '../../gallery/context/PhotoCacheContext';
 
 export const UploadPage = () => {
   const navigate = useNavigate();
+  const { setCache } = usePhotoCache();
   const {
     uploads,
     addFiles,
@@ -19,6 +23,34 @@ export const UploadPage = () => {
       // navigate('/gallery');
     },
   });
+
+  // Preload gallery photos while uploading for faster navigation
+  useEffect(() => {
+    if (stats.uploading > 0 || stats.pending > 0) {
+      // Start preloading gallery data in the background
+      const preloadGallery = async () => {
+        try {
+          const startTime = performance.now();
+          const response = await photoApi.getPhotos({ includeDownloadUrl: false });
+          setCache({
+            photos: response.data.items,
+            total: response.data.totalElements,
+            lastFetchedPage: response.data.page,
+            hasNext: response.data.hasNext,
+          }); // Store in cache for instant gallery load
+          const duration = performance.now() - startTime;
+          console.log(`[Performance] Gallery preloaded and cached in ${duration.toFixed(2)}ms`);
+        } catch (error) {
+          // Silent failure - preloading is an optimization
+          console.debug('Gallery preload failed:', error);
+        }
+      };
+      
+      // Start preloading after a short delay to avoid interfering with uploads
+      const preloadTimer = setTimeout(preloadGallery, 1000);
+      return () => clearTimeout(preloadTimer);
+    }
+  }, [stats.uploading, stats.pending, setCache]);
 
   const handleFilesSelected = (files: File[]) => {
     addFiles(files);

@@ -1,4 +1,5 @@
-import * as FileSystem from 'expo-file-system';
+import { File, getInfoAsync } from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { uploadApi } from '../../../shared/api/endpoints';
 import { InitiateUploadRequest, CompletedPart, PresignedUrl } from '../../../shared/types';
 
@@ -18,6 +19,7 @@ export interface UploadResult {
 class UploadService {
   /**
    * Main upload function that coordinates the entire multipart upload process
+   * Includes performance instrumentation
    */
   async uploadFile(
     uri: string,
@@ -26,35 +28,67 @@ class UploadService {
     mimeType: string,
     options: UploadOptions = {}
   ): Promise<UploadResult> {
+    const prepared = await this.prepareFileForUpload(uri, filename, fileSize, mimeType);
+    const uploadUri = prepared.uri;
+    const uploadFilename = prepared.filename;
+    const uploadSize = prepared.fileSize;
+    const uploadMimeType = prepared.mimeType;
+
+    const overallStart = Date.now();
+    const perfMetrics = {
+      initiate: 0,
+      upload: 0,
+      complete: 0,
+    };
+
     try {
       // Step 1: Initiate upload with backend
+      const initStart = Date.now();
       const initRequest: InitiateUploadRequest = {
-        filename,
-        fileSizeBytes: fileSize,
-        mimeType,
+        originalFilename: uploadFilename,
+        fileSizeBytes: uploadSize,
+        mimeType: uploadMimeType,
       };
 
       const { data: initResponse } = await uploadApi.initiateUpload(initRequest);
-      const { photoId, uploadId, s3Key, presignedUrls } = initResponse;
+      const { photoId, multipartUploadId, s3Key, presignedUrls } = initResponse;
+      perfMetrics.initiate = Date.now() - initStart;
 
       // Step 2: Upload parts directly to S3 in parallel
+      const uploadStart = Date.now();
       const uploadedParts = await this.uploadParts(
-        uri,
-        fileSize,
-        mimeType,
+        uploadUri,
+        uploadSize,
+        uploadMimeType,
         presignedUrls,
         options
       );
+      perfMetrics.upload = Date.now() - uploadStart;
 
       // Step 3: Complete the upload with backend
+      const completeStart = Date.now();
       await uploadApi.completeUpload(photoId, {
-        uploadId,
         parts: uploadedParts,
       });
+      perfMetrics.complete = Date.now() - completeStart;
 
+      const totalDuration = Date.now() - overallStart;
+      const fileSizeMB = (uploadSize / 1024 / 1024).toFixed(2);
+      const throughputMbps = ((uploadSize * 8) / (perfMetrics.upload / 1000) / 1000000).toFixed(2);
+
+      console.log(
+        `[Performance] Upload complete for ${filename} (${fileSizeMB}MB):\n` +
+        `  Total: ${totalDuration}ms\n` +
+        `  Initiate: ${perfMetrics.initiate}ms\n` +
+        `  Upload: ${perfMetrics.upload}ms (${throughputMbps} Mbps)\n` +
+        `  Complete: ${perfMetrics.complete}ms`
+      );
+
+      const uploadId = multipartUploadId;
       return { photoId, uploadId, s3Key };
     } catch (error) {
-      console.error('Upload failed:', error);
+      const totalDuration = Date.now() - overallStart;
+      console.error(`Upload failed after ${totalDuration}ms:`, error);
       throw error;
     }
   }
@@ -79,22 +113,26 @@ class UploadService {
       const offset = partIndex * CHUNK_SIZE;
       const length = Math.min(CHUNK_SIZE, fileSize - offset);
 
-      // Read chunk from file
-      const chunkBase64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-        position: offset,
-        length: length,
-      });
+      // Read chunk from file using new File API
+      const file = new File(uri);
+      const handle = file.open();
+      handle.offset = offset;
+      const bytes = handle.readBytes(length);
+      handle.close();
 
-      // Convert base64 to blob
-      const chunkBlob = this.base64ToBlob(chunkBase64, mimeType);
+      // Convert bytes to base64
+      const chunkBase64 = this.bytesToBase64(bytes);
 
-      // Upload chunk to S3 using fetch
+      // Decode base64 back to binary string for fetch body
+      const binaryString = atob(chunkBase64);
+
+      // Upload chunk to S3 using fetch with binary string
       const response = await fetch(presigned.url, {
         method: 'PUT',
-        body: chunkBlob,
+        body: binaryString,
         headers: {
           'Content-Type': mimeType,
+          'Content-Length': length.toString(),
         },
         signal: options.signal,
       });
@@ -132,25 +170,15 @@ class UploadService {
   }
 
   /**
-   * Convert base64 string to Blob
+   * Convert Uint8Array bytes to base64 string
    */
-  private base64ToBlob(base64: string, mimeType: string): Blob {
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-      const byteNumbers = new Array(slice.length);
-
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
+  private bytesToBase64(bytes: Uint8Array): string {
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
-
-    return new Blob(byteArrays, { type: mimeType });
+    return btoa(binary);
   }
 
   /**
@@ -164,6 +192,8 @@ class UploadService {
       'image/png',
       'image/gif',
       'image/webp',
+      'image/heic',
+      'image/heif',
     ];
 
     if (fileSize > MAX_FILE_SIZE) {
@@ -184,10 +214,70 @@ class UploadService {
   }
 
   /**
+   * Convert HEIC/HEIF images to JPEG before upload so the backend and gallery can render them.
+   */
+  private async prepareFileForUpload(
+    uri: string,
+    filename: string,
+    fileSize: number,
+    mimeType: string
+  ): Promise<{ uri: string; filename: string; fileSize: number; mimeType: string }> {
+    const lowerName = (filename || '').toLowerCase();
+    const normalizedMime = mimeType?.toLowerCase() || '';
+    const looksLikeHeic =
+      normalizedMime.includes('heic') ||
+      normalizedMime.includes('heif') ||
+      lowerName.endsWith('.heic') ||
+      lowerName.endsWith('.heif');
+
+    if (!looksLikeHeic) {
+      return { uri, filename, fileSize, mimeType };
+    }
+
+    try {
+      const converted = await ImageManipulator.manipulateAsync(
+        uri,
+        [],
+        {
+          compress: 1,
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+
+      const info = await getInfoAsync(converted.uri);
+      const derivedSize =
+        'size' in info && typeof (info as { size?: number }).size === 'number'
+          ? (info as { size?: number }).size!
+          : fileSize;
+      const normalizedName =
+        filename?.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg') ||
+        `photo-${Date.now()}.jpg`;
+
+      return {
+        uri: converted.uri,
+        filename: normalizedName,
+        fileSize: derivedSize,
+        mimeType: 'image/jpeg',
+      };
+    } catch (error) {
+      console.warn('[UploadService] Failed to convert HEIC, uploading original file', error);
+      return {
+        uri,
+        filename,
+        fileSize,
+        mimeType,
+      };
+    }
+  }
+
+  /**
    * Get file info from URI
    */
-  async getFileInfo(uri: string): Promise<FileSystem.FileInfo> {
-    return await FileSystem.getInfoAsync(uri);
+  async getFileInfo(uri: string): Promise<{ exists: boolean; size?: number; uri: string }> {
+    const file = new File(uri);
+    const exists = file.exists;
+    const size = exists ? file.size : undefined;
+    return { exists, size, uri };
   }
 }
 

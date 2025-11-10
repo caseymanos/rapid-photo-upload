@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -29,6 +31,7 @@ public class Photo {
     private long fileSizeBytes;
     private String mimeType;
     private String thumbnailUrl;
+    private Map<String, String> thumbnailVariants = new LinkedHashMap<>();
     private String thumbnailFallbackUrl;
     private String placeholderUrl;
     private String placeholderFallbackUrl;
@@ -88,6 +91,7 @@ public class Photo {
         Instant uploadExpiresAt,
         PhotoMetadata metadata,
         String thumbnailUrl,
+        Map<String, String> thumbnailVariants,
         String thumbnailFallbackUrl,
         String placeholderUrl,
         String placeholderFallbackUrl,
@@ -110,6 +114,9 @@ public class Photo {
         this.uploadExpiresAt = uploadExpiresAt;
         this.metadata = metadata;
         this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailVariants = thumbnailVariants != null
+            ? new LinkedHashMap<>(thumbnailVariants)
+            : new LinkedHashMap<>();
         this.thumbnailFallbackUrl = thumbnailFallbackUrl;
         this.placeholderUrl = placeholderUrl;
         this.placeholderFallbackUrl = placeholderFallbackUrl;
@@ -210,6 +217,13 @@ public class Photo {
     
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+        this.updatedAt = Instant.now();
+    }
+
+    public void setThumbnailVariants(Map<String, String> thumbnailVariants) {
+        this.thumbnailVariants = thumbnailVariants != null
+            ? new LinkedHashMap<>(thumbnailVariants)
+            : new LinkedHashMap<>();
         this.updatedAt = Instant.now();
     }
 

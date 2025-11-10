@@ -9,3 +9,6 @@ ALTER TABLE photos
 
 ALTER TABLE photos
     ADD COLUMN IF NOT EXISTS placeholder_base64 TEXT;
+
+ALTER TABLE photos
+    ADD COLUMN IF NOT EXISTS thumbnail_variants JSONB;

@@ -24,7 +24,7 @@ export const usePhotos = () => {
       console.log('Fetching photos, page:', pageNum);
       const response = await photoApi.getPhotos({
         page: pageNum,
-        size: 20, // Reduced from 50 to prevent memory issues
+        size: 12, // Further reduced to 12 for better stability
         includeDownloadUrl: true
       });
 

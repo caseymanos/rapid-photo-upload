@@ -6,7 +6,7 @@ import com.rapidphotoupload.domain.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.filters.GaussianBlur;
+import net.coobird.thumbnailator.filters.ImageFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,17 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,13 +41,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PhotoDerivativeService {
 
-    private static final int MEDIUM_EDGE = 600;
+    private static final List<VariantSpec> THUMBNAIL_VARIANTS = List.of(
+        new VariantSpec("320w", 320),
+        new VariantSpec("640w", 640),
+        new VariantSpec("1024w", 1024)
+    );
+    private static final String DEFAULT_VARIANT_KEY = "640w";
     private static final int PLACEHOLDER_EDGE = 32;
-    private static final float MEDIUM_WEBP_QUALITY = 0.82f;
-    private static final float MEDIUM_JPEG_QUALITY = 0.85f;
+    private static final float THUMBNAIL_WEBP_QUALITY = 0.82f;
+    private static final float THUMBNAIL_JPEG_QUALITY = 0.85f;
     private static final float PLACEHOLDER_WEBP_QUALITY = 0.6f;
     private static final float PLACEHOLDER_JPEG_QUALITY = 0.65f;
-    private static final double PLACEHOLDER_BLUR_RADIUS = 12.0;
+    private static final int PLACEHOLDER_BLUR_ITERATIONS = 2;
+    private static final ImageFilter PLACEHOLDER_BLUR_FILTER = new BoxBlurFilter(PLACEHOLDER_BLUR_ITERATIONS);
 
     static {
         // Ensure ImageIO discovers plugins like WebP once at startup.
@@ -58,8 +70,16 @@ public class PhotoDerivativeService {
     @Value("${aws.s3.public-base-url:}")
     private String publicBaseUrl;
 
+    public void generateDerivatives(UUID photoId) {
+        generateDerivativesInternal(photoId);
+    }
+
     @Async("thumbnailExecutor")
     public void generateDerivativesAsync(UUID photoId) {
+        generateDerivativesInternal(photoId);
+    }
+
+    private void generateDerivativesInternal(UUID photoId) {
         long start = System.currentTimeMillis();
         Optional<Photo> photoOpt = photoRepository.findById(photoId);
 
@@ -107,13 +127,22 @@ public class PhotoDerivativeService {
 
         DerivativeBundle bundle = createDerivatives(photo.getId(), original);
 
-        uploadDerivative(photo, bundle.mediumWebpKey(), bundle.mediumWebpBytes(), "image/webp");
-        uploadDerivative(photo, bundle.mediumJpegKey(), bundle.mediumJpegBytes(), "image/jpeg");
+        Map<String, String> variantUrls = new LinkedHashMap<>();
+        bundle.thumbnailVariants().forEach((descriptor, variant) -> {
+            uploadDerivative(photo, variant.webpKey(), variant.webpBytes(), "image/webp");
+            uploadDerivative(photo, variant.jpegKey(), variant.jpegBytes(), "image/jpeg");
+            variantUrls.put(descriptor, buildPublicUrl(photo, variant.webpKey()));
+        });
         uploadDerivative(photo, bundle.placeholderWebpKey(), bundle.placeholderWebpBytes(), "image/webp");
         uploadDerivative(photo, bundle.placeholderJpegKey(), bundle.placeholderJpegBytes(), "image/jpeg");
 
-        photo.setThumbnailUrl(buildPublicUrl(photo, bundle.mediumWebpKey()));
-        photo.setThumbnailFallbackUrl(buildPublicUrl(photo, bundle.mediumJpegKey()));
+        ThumbnailVariant defaultVariant = resolveDefaultVariant(bundle);
+
+        photo.setThumbnailVariants(variantUrls);
+        if (defaultVariant != null) {
+            photo.setThumbnailUrl(buildPublicUrl(photo, defaultVariant.webpKey()));
+            photo.setThumbnailFallbackUrl(buildPublicUrl(photo, defaultVariant.jpegKey()));
+        }
         photo.setPlaceholderUrl(buildPublicUrl(photo, bundle.placeholderWebpKey()));
         photo.setPlaceholderFallbackUrl(buildPublicUrl(photo, bundle.placeholderJpegKey()));
         photo.setPlaceholderBase64(bundle.placeholderDataUri());
@@ -141,13 +170,21 @@ public class PhotoDerivativeService {
     private DerivativeBundle createDerivatives(UUID photoId, BufferedImage original) throws IOException {
         String prefix = normalizedPrefix();
 
-        String mediumWebpKey = prefix + photoId + "-medium.webp";
-        String mediumJpegKey = prefix + photoId + "-medium.jpg";
         String placeholderWebpKey = prefix + photoId + "-small.webp";
         String placeholderJpegKey = prefix + photoId + "-small.jpg";
+        Map<String, ThumbnailVariant> variants = new LinkedHashMap<>();
 
-        byte[] mediumWebpBytes = renderDerivative(original, MEDIUM_EDGE, false, "webp", MEDIUM_WEBP_QUALITY);
-        byte[] mediumJpegBytes = renderDerivative(original, MEDIUM_EDGE, false, "jpg", MEDIUM_JPEG_QUALITY);
+        for (VariantSpec spec : THUMBNAIL_VARIANTS) {
+            String baseKey = prefix + photoId + "-" + spec.key();
+            String webpKey = baseKey + ".webp";
+            String jpegKey = baseKey + ".jpg";
+
+            byte[] webpBytes = renderDerivative(original, spec.edge(), false, "webp", THUMBNAIL_WEBP_QUALITY);
+            byte[] jpegBytes = renderDerivative(original, spec.edge(), false, "jpg", THUMBNAIL_JPEG_QUALITY);
+
+            variants.put(spec.key(), new ThumbnailVariant(webpKey, webpBytes, jpegKey, jpegBytes));
+        }
+
         byte[] placeholderWebpBytes = renderDerivative(original, PLACEHOLDER_EDGE, true, "webp", PLACEHOLDER_WEBP_QUALITY);
         byte[] placeholderJpegBytes = renderDerivative(original, PLACEHOLDER_EDGE, true, "jpg", PLACEHOLDER_JPEG_QUALITY);
 
@@ -155,10 +192,7 @@ public class PhotoDerivativeService {
         String dataUri = "data:image/webp;base64," + base64;
 
         return new DerivativeBundle(
-            mediumWebpKey,
-            mediumWebpBytes,
-            mediumJpegKey,
-            mediumJpegBytes,
+            variants,
             placeholderWebpKey,
             placeholderWebpBytes,
             placeholderJpegKey,
@@ -176,7 +210,7 @@ public class PhotoDerivativeService {
                 .outputQuality(quality);
 
             if (applyBlur) {
-                builder.addFilter(new GaussianBlur(PLACEHOLDER_BLUR_RADIUS));
+                builder.addFilter(PLACEHOLDER_BLUR_FILTER);
             }
 
             builder.toOutputStream(outputStream);
@@ -206,7 +240,12 @@ public class PhotoDerivativeService {
     }
 
     private boolean hasAllDerivatives(Photo photo) {
-        return isSet(photo.getThumbnailUrl())
+        Map<String, String> variants = photo.getThumbnailVariants();
+        boolean hasVariants = variants != null
+            && THUMBNAIL_VARIANTS.stream().allMatch(spec -> isSet(variants.get(spec.key())));
+
+        return hasVariants
+            && isSet(photo.getThumbnailUrl())
             && isSet(photo.getThumbnailFallbackUrl())
             && isSet(photo.getPlaceholderUrl())
             && isSet(photo.getPlaceholderFallbackUrl())
@@ -244,17 +283,60 @@ public class PhotoDerivativeService {
         return base + "/" + key;
     }
 
+    private ThumbnailVariant resolveDefaultVariant(DerivativeBundle bundle) {
+        if (bundle.thumbnailVariants().isEmpty()) {
+            return null;
+        }
+        ThumbnailVariant variant = bundle.thumbnailVariants().get(DEFAULT_VARIANT_KEY);
+        if (variant != null) {
+            return variant;
+        }
+        return bundle.thumbnailVariants().values().iterator().next();
+    }
+
     private record DerivativeBundle(
-        String mediumWebpKey,
-        byte[] mediumWebpBytes,
-        String mediumJpegKey,
-        byte[] mediumJpegBytes,
+        Map<String, ThumbnailVariant> thumbnailVariants,
         String placeholderWebpKey,
         byte[] placeholderWebpBytes,
         String placeholderJpegKey,
         byte[] placeholderJpegBytes,
         String placeholderDataUri
     ) {}
+
+    private record ThumbnailVariant(
+        String webpKey,
+        byte[] webpBytes,
+        String jpegKey,
+        byte[] jpegBytes
+    ) {}
+
+    private record VariantSpec(
+        String key,
+        int edge
+    ) {}
+
+    private static final class BoxBlurFilter implements ImageFilter {
+
+        private final int iterations;
+        private final Kernel kernel;
+
+        private BoxBlurFilter(int iterations) {
+            this.iterations = Math.max(1, iterations);
+            float[] data = new float[9];
+            Arrays.fill(data, 1f / 9f);
+            this.kernel = new Kernel(3, 3, data);
+        }
+
+        @Override
+        public BufferedImage apply(BufferedImage img) {
+            BufferedImage current = img;
+            for (int i = 0; i < iterations; i++) {
+                ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+                current = op.filter(current, null);
+            }
+            return current;
+        }
+    }
 
     private static class UnsupportedImageFormatException extends RuntimeException {
         UnsupportedImageFormatException(String message) {

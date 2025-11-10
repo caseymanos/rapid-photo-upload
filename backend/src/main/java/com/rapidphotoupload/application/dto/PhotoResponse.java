@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -27,6 +28,7 @@ public class PhotoResponse {
     private String uploadStatus;
     private List<String> tags;
     private String thumbnailUrl;
+    private Map<String, String> thumbnailVariants;
     private String thumbnailFallbackUrl;
     private String placeholderUrl;
     private String placeholderFallbackUrl;

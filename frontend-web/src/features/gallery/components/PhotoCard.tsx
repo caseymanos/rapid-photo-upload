@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { PhotoResponse } from '@/shared/types';
 import { usePhotoDownloadUrl } from '../hooks/usePhotoDownloadUrl';
@@ -23,9 +23,15 @@ export const PhotoCard = ({
   style,
 }: PhotoCardProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const shouldFetchFullImage = !photo.thumbnailUrl;
+  const hasThumbnail = Boolean(photo.thumbnailUrl || photo.thumbnailFallbackUrl);
+  const shouldFetchFullImage = !hasThumbnail;
   const { url, fetchUrl } = usePhotoDownloadUrl(photo.id, photo.downloadUrl);
+
+  useEffect(() => {
+    setIsImageLoaded(false);
+  }, [photo.id]);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -56,7 +62,52 @@ export const PhotoCard = ({
     }
   }, [fetchUrl, isVisible, shouldFetchFullImage, url]);
 
-  const displayUrl = photo.thumbnailUrl || url;
+  const variantEntries = useMemo(() => {
+    if (!photo.thumbnailVariants) return [];
+    return Object.entries(photo.thumbnailVariants)
+      .filter(([descriptor]) => /^\d+w$/.test(descriptor))
+      .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10));
+  }, [photo.thumbnailVariants]);
+
+  const toFallbackFormat = (src?: string) => {
+    if (!src) return undefined;
+    if (!/\.webp(\?.*)?$/i.test(src)) return undefined;
+    return src.replace(/\.webp(\?.*)?$/i, '.jpg$1');
+  };
+
+  const fallbackVariantEntries = useMemo(() => {
+    return variantEntries
+      .map(([descriptor, src]) => {
+        const fallbackSrc = toFallbackFormat(src);
+        return fallbackSrc ? ([descriptor, fallbackSrc] as [string, string]) : null;
+      })
+      .filter((entry): entry is [string, string] => entry !== null);
+  }, [variantEntries]);
+
+  const webpSrcSet =
+    variantEntries.length > 0
+      ? variantEntries.map(([descriptor, src]) => `${src} ${descriptor}`).join(', ')
+      : undefined;
+
+  const fallbackSrcSet =
+    fallbackVariantEntries.length > 0
+      ? fallbackVariantEntries.map(([descriptor, src]) => `${src} ${descriptor}`).join(', ')
+      : undefined;
+
+  const responsiveSizes = '(max-width: 640px) 48vw, (max-width: 1024px) 30vw, 280px';
+
+  const defaultVariant =
+    variantEntries.find(([descriptor]) => descriptor === '640w') ??
+    variantEntries[Math.floor(variantEntries.length / 2)] ??
+    variantEntries[0];
+
+  const defaultVariantUrl = defaultVariant?.[1];
+
+  const placeholderSrc = photo.placeholderBase64 || photo.placeholderUrl || photo.placeholderFallbackUrl;
+  const primaryThumbnailSrc = photo.thumbnailUrl || defaultVariantUrl;
+  const fallbackThumbnailSrc = photo.thumbnailFallbackUrl || toFallbackFormat(defaultVariantUrl) || url;
+  const imageSrc = fallbackThumbnailSrc || primaryThumbnailSrc || '/placeholder-image.png';
+  const shouldApplyResponsive = Boolean(webpSrcSet || fallbackSrcSet);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -118,18 +169,46 @@ export const PhotoCard = ({
       )}
 
       {/* Image */}
-      <div className="aspect-square bg-gray-100">
-        {displayUrl ? (
+      <div className="relative aspect-square bg-gray-100 overflow-hidden">
+        {placeholderSrc && (
           <img
-            src={displayUrl}
-            alt={photo.originalFilename}
-            className="w-full h-full object-cover transition-opacity duration-300"
-            loading="lazy"
-            onError={(e) => {
-              // Fallback to placeholder on error
-              e.currentTarget.src = '/placeholder-image.png';
-            }}
+            src={placeholderSrc}
+            alt=""
+            aria-hidden="true"
+            className={`absolute inset-0 w-full h-full object-cover blur-2xl scale-110 transition-opacity duration-500 ${
+              isImageLoaded ? 'opacity-0' : 'opacity-100'
+            }`}
           />
+        )}
+
+        {primaryThumbnailSrc || fallbackThumbnailSrc ? (
+          <picture>
+            {webpSrcSet && <source srcSet={webpSrcSet} sizes={responsiveSizes} type="image/webp" />}
+            {(fallbackSrcSet || fallbackThumbnailSrc) && (
+              <source
+                srcSet={fallbackSrcSet ?? fallbackThumbnailSrc}
+                sizes={responsiveSizes}
+                type="image/jpeg"
+              />
+            )}
+            <img
+              src={imageSrc}
+              alt={photo.originalFilename}
+              className={`relative w-full h-full object-cover transition-opacity duration-500 ${
+                isImageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              loading="lazy"
+              decoding="async"
+              srcSet={fallbackSrcSet}
+              sizes={shouldApplyResponsive ? responsiveSizes : undefined}
+              onLoad={() => setIsImageLoaded(true)}
+              onError={(event) => {
+                if (event.currentTarget.src !== '/placeholder-image.png') {
+                  event.currentTarget.src = '/placeholder-image.png';
+                }
+              }}
+            />
+          </picture>
         ) : (
           <div className="w-full h-full animate-pulse bg-gray-200" />
         )}

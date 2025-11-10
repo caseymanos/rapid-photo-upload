@@ -7,6 +7,7 @@ import com.rapidphotoupload.domain.repository.PhotoRepository;
 import com.rapidphotoupload.infrastructure.persistence.entity.PhotoEntity;
 import com.rapidphotoupload.infrastructure.persistence.jpa.JpaPhotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -81,6 +82,19 @@ public class PhotoRepositoryImpl implements PhotoRepository {
     public void deleteById(UUID photoId) {
         jpaRepository.deleteById(photoId);
     }
+
+    @Override
+    public List<Photo> findCompletedWithoutDerivatives(int batchSize) {
+        int pageSize = Math.max(1, batchSize);
+        List<PhotoEntity> entities = jpaRepository.findCompletedWithoutDerivatives(
+            UploadStatus.COMPLETED,
+            PageRequest.of(0, pageSize)
+        );
+
+        return entities.stream()
+            .map(this::toDomain)
+            .collect(Collectors.toList());
+    }
     
     private Photo toDomain(PhotoEntity entity) {
         PhotoMetadata metadata = new PhotoMetadata(entity.getTags());
@@ -100,6 +114,7 @@ public class PhotoRepositoryImpl implements PhotoRepository {
             entity.getUploadExpiresAt(),
             metadata,
             entity.getThumbnailUrl(),
+            entity.getThumbnailVariants(),
             entity.getThumbnailFallbackUrl(),
             entity.getPlaceholderUrl(),
             entity.getPlaceholderFallbackUrl(),
@@ -128,6 +143,7 @@ public class PhotoRepositoryImpl implements PhotoRepository {
         entity.setUploadExpiresAt(photo.getUploadExpiresAt());
         entity.setTags(photo.getMetadata().getTags());
         entity.setThumbnailUrl(photo.getThumbnailUrl());
+        entity.setThumbnailVariants(photo.getThumbnailVariants());
         entity.setThumbnailFallbackUrl(photo.getThumbnailFallbackUrl());
         entity.setPlaceholderUrl(photo.getPlaceholderUrl());
         entity.setPlaceholderFallbackUrl(photo.getPlaceholderFallbackUrl());

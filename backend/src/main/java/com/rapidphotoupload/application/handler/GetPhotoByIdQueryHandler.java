@@ -1,6 +1,7 @@
 package com.rapidphotoupload.application.handler;
 
 import com.rapidphotoupload.application.dto.PhotoResponse;
+import com.rapidphotoupload.application.mapper.PhotoResponseMapper;
 import com.rapidphotoupload.application.query.GetPhotoByIdQuery;
 import com.rapidphotoupload.domain.model.Photo;
 import com.rapidphotoupload.domain.repository.PhotoRepository;
@@ -21,6 +22,7 @@ public class GetPhotoByIdQueryHandler {
 
     private final PhotoRepository photoRepository;
     private final S3StorageService s3StorageService;
+    private final PhotoResponseMapper photoResponseMapper;
     
     @Transactional(readOnly = true)
     public PhotoResponse handle(GetPhotoByIdQuery query) {
@@ -45,25 +47,6 @@ public class GetPhotoByIdQueryHandler {
             log.error("Failed to generate download URL for photo {}", photo.getId(), e);
         }
 
-        return new PhotoResponse(
-            photo.getId(),
-            photo.getUserId(),
-            photo.getUploadSessionId(),
-            photo.getS3Key(),
-            photo.getS3Bucket(),
-            photo.getOriginalFilename(),
-            photo.getFileSizeBytes(),
-            photo.getMimeType(),
-            photo.getUploadStatus().name(),
-            photo.getMetadata().getTags(),
-            photo.getThumbnailUrl(),
-            photo.getThumbnailFallbackUrl(),
-            photo.getPlaceholderUrl(),
-            photo.getPlaceholderFallbackUrl(),
-            photo.getPlaceholderBase64(),
-            downloadUrl,
-            photo.getCreatedAt(),
-            photo.getUpdatedAt()
-        );
+        return photoResponseMapper.toResponse(photo, downloadUrl);
     }
 }

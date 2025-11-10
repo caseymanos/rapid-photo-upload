@@ -60,18 +60,20 @@ const PhotoItemComponent: React.FC<{
         </View>
       ) : (
         <Image
-          source={{ uri: item.downloadUrl }}
+          source={{ uri: item.thumbnailUrl || item.thumbnailFallbackUrl || item.downloadUrl }}
           style={[
             styles.photo,
             selectionMode && isSelected && styles.selectedPhoto,
           ]}
           contentFit="cover"
-          transition={200}
+          transition={150}
           cachePolicy="disk"
           recyclingKey={item.id}
-          priority="normal"
-          placeholder={{ blurhash: 'L6PZfSjE.AyE_3t7t7R**0o#DgR4' }}
+          priority="low"
+          placeholder={{ blurhash: item.placeholderBase64 || 'L6PZfSjE.AyE_3t7t7R**0o#DgR4' }}
           placeholderContentFit="cover"
+          memoryPolicy="discardUnusedMemoryAfterFiveSeconds"
+          responsivePolicy="initial"
           onLoadStart={() => {
             if (DEV_LOGGING) {
               console.log('[PhotoGrid] Image load start:', item.originalFilename);
@@ -87,7 +89,7 @@ const PhotoItemComponent: React.FC<{
           onError={(error) => {
             console.error('[PhotoGrid] Image load error:', {
               filename: item.originalFilename,
-              url: item.downloadUrl,
+              url: item.thumbnailUrl || item.downloadUrl,
               error,
             });
             setLoading(false);
@@ -186,12 +188,17 @@ export const PhotoGrid: React.FC<Props> = ({
       numColumns={NUM_COLUMNS}
       contentContainerStyle={styles.container}
       onEndReached={handleEndReached}
-      onEndReachedThreshold={0.2}
+      onEndReachedThreshold={0.5}
       onRefresh={onRefresh}
       refreshing={isRefreshing}
       ListEmptyComponent={renderEmpty}
       ListFooterComponent={footerComponent}
       estimatedItemSize={ITEM_SIZE}
+      drawDistance={ITEM_SIZE * 6}
+      overrideItemLayout={(layout, item) => {
+        layout.size = ITEM_SIZE;
+      }}
+      removeClippedSubviews={true}
     />
   );
 };

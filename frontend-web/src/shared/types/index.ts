@@ -34,6 +34,7 @@ export interface PhotoResponse {
   tags: string[];
   metadata: PhotoMetadata;
   thumbnailUrl?: string;
+  thumbnailVariants?: Record<string, string>;
   thumbnailFallbackUrl?: string;
   placeholderUrl?: string;
   placeholderFallbackUrl?: string;

@@ -71,7 +71,7 @@ export const PhotoModal: React.FC<Props> = ({ photo, visible, onClose, onDelete 
 
         <ScrollView contentContainerStyle={styles.content}>
           <Image
-            source={photo.downloadUrl}
+            source={{ uri: photo.downloadUrl }}
             style={styles.image}
             contentFit="contain"
             cachePolicy="memory-disk"

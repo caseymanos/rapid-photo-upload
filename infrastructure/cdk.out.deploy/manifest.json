@@ -1,0 +1,1619 @@
+{
+  "version": "48.0.0",
+  "artifacts": {
+    "rapid-photo-upload-dev-network.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-network.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-network": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-network.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/e03c01c2c419345471d9bea184745ffd54a23fcaf9f5912a46afab5ffae7d055.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-network.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-network.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-network": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-network/AlbSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AlbSecurityGroup86A59E99"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/EcsSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsSecurityGroup44008BF1"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/EcsSecurityGroup/from rapidphotouploaddevnetworkAlbSecurityGroup2DEFE793:8080": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsSecurityGroupfromrapidphotouploaddevnetworkAlbSecurityGroup2DEFE793808036885CBF"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/DatabaseSecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSecurityGroup7319C0F6"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/DatabaseSecurityGroup/from rapidphotouploaddevnetworkEcsSecurityGroup9D89F460:5432": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSecurityGroupfromrapidphotouploaddevnetworkEcsSecurityGroup9D89F46054327A2CBE03"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/VpcId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcId"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/Exports/Output{\"Fn::GetAtt\":[\"DatabaseSecurityGroup7319C0F6\",\"GroupId\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/Exports/Output{\"Fn::GetAtt\":[\"AlbSecurityGroup86A59E99\",\"GroupId\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/Exports/Output{\"Fn::GetAtt\":[\"EcsSecurityGroup44008BF1\",\"GroupId\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-network/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-network"
+    },
+    "rapid-photo-upload-dev-storage.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-storage.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-storage": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-storage.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/c1c8a7e3f00ba4ea31a1df0f5ca775641cc660d96f5cad707d6a5fbee453aaac.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-storage.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-storage.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-storage": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/PhotoBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PhotoBucket465738B3"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/PhotoBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PhotoBucketPolicy60C1073C"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/PhotoBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PhotoBucketAutoDeleteObjectsCustomResourceE23A3D3F"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+          {
+            "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+            "data": true
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/PhotoBucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PhotoBucketName"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/PhotoBucketArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PhotoBucketArn"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/Exports/Output{\"Ref\":\"PhotoBucket465738B3\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefPhotoBucket465738B3809BC70E"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-storage/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-storage"
+    },
+    "rapid-photo-upload-dev-event.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-event.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-event": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-event.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/5287a94dbe5069f6279047bf93bd88863e60f272d8f2eb3c8f634d1b5eca613d.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-event.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-event.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-event": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-event/EventBus/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBus7B8748AA"
+          }
+        ],
+        "/rapid-photo-upload-dev-event/EventBusName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusName"
+          }
+        ],
+        "/rapid-photo-upload-dev-event/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-event/Exports/Output{\"Ref\":\"EventBus7B8748AA\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefEventBus7B8748AA3BA3246C"
+          }
+        ],
+        "/rapid-photo-upload-dev-event/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-event/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-event"
+    },
+    "rapid-photo-upload-dev-database.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-database.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-database": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-database.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/d03da83fb47fe1c91346cda12a24631ede511eedb03fcf47c7f7d63822ea690b.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-database.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-network",
+        "rapid-photo-upload-dev-database.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-database": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseSecret/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSecret86DBB7B3"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseSecret/Attachment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSecretAttachment9A63A3D4"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Database/SubnetGroup/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSubnetGroup7D60F180"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Database/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseB269D8BB"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Database/LogRetentionpostgresql/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseLogRetentionpostgresqlFBE8A947"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Database/LogRetentionupgrade/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseLogRetentionupgrade5EE08DCB"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseEndpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseEndpoint"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabasePort": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabasePort"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseName"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseSecretArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseSecretArn"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/DatabaseUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatabaseUrl"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Exports/Output{\"Fn::GetAtt\":[\"DatabaseB269D8BB\",\"Endpoint.Address\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttDatabaseB269D8BBEndpointAddressA4DBD059"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Exports/Output{\"Fn::GetAtt\":[\"DatabaseB269D8BB\",\"Endpoint.Port\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttDatabaseB269D8BBEndpointPort3ACB3F51"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Exports/Output{\"Ref\":\"DatabaseSecret86DBB7B3\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefDatabaseSecret86DBB7B353068790"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/Exports/Output{\"Ref\":\"DatabaseB269D8BB\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-database/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-database"
+    },
+    "rapid-photo-upload-dev-compute.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-compute.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-compute": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-compute.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/b606b796eb710f84cb1083cfc8d13c2d35ba74377813f2811c66c47b38abf919.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-compute.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-network",
+        "rapid-photo-upload-dev-database",
+        "rapid-photo-upload-dev-storage",
+        "rapid-photo-upload-dev-event",
+        "rapid-photo-upload-dev-compute.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-compute": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Cluster/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ClusterEB0386A7"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TaskDefinition/TaskRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskDefinitionTaskRoleFD40A61D"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TaskDefinition/TaskRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskDefinitionTaskRoleDefaultPolicy282E8624"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TaskDefinition/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskDefinitionB36D86D9"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TaskDefinition/ExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskDefinitionExecutionRole8D61C2FB"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TaskDefinition/ExecutionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskDefinitionExecutionRoleDefaultPolicy1F3406F5"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/LogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogGroupF5B46931"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/LoadBalancer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LoadBalancerBE9EEC3A"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/LoadBalancer/HttpListener/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LoadBalancerHttpListener22970844"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/TargetGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TargetGroup3D7CD9B8"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Service/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceD69D759B"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Service/TaskCount/Target/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceTaskCountTarget23E25614"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Service/TaskCount/Target/CpuScaling/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceTaskCountTargetCpuScalingCC8A5DF6"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Service/TaskCount/Target/MemoryScaling/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceTaskCountTargetMemoryScalingEA4B07C8"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Service/TaskCount/Target/RequestCountScaling/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceTaskCountTargetRequestCountScaling6E3EB88D"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/RepositoryUri": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RepositoryUri"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/ClusterName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ClusterName"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/ServiceName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceName"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/LoadBalancerDns": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LoadBalancerDns"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/LoadBalancerUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LoadBalancerUrl"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Exports/Output{\"Ref\":\"ClusterEB0386A7\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefClusterEB0386A796A0E3FE"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Exports/Output{\"Fn::GetAtt\":[\"ServiceD69D759B\",\"Name\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttServiceD69D759BName51127533"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/Exports/Output{\"Fn::GetAtt\":[\"LoadBalancerBE9EEC3A\",\"LoadBalancerFullName\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-compute/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-compute"
+    },
+    "rapid-photo-upload-dev-monitoring.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-monitoring.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-monitoring": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-monitoring.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/0c0c44013a1c691af2551efa93877a6100f0802894ffb3e12d0e4b7a195ed98b.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-monitoring.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-compute",
+        "rapid-photo-upload-dev-database",
+        "rapid-photo-upload-dev-monitoring.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-monitoring": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/Dashboard/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Dashboard9E4231ED"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/EcsCpuAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsCpuAlarm1D439C07"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/EcsMemoryAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EcsMemoryAlarmB50C6B61"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/Alb5xxAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Alb5xxAlarm99BFF946"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/UnhealthyTargetAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UnhealthyTargetAlarmC6753764"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/RdsCpuAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RdsCpuAlarm29EF1690"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/RdsFreeStorageAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RdsFreeStorageAlarm0E00E3B8"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/RdsConnectionAlarm/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RdsConnectionAlarmD4B8992D"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/DashboardUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DashboardUrl"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-monitoring/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-monitoring"
+    },
+    "rapid-photo-upload-dev-frontend.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "rapid-photo-upload-dev-frontend.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "rapid-photo-upload-dev-frontend": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://971422717446/us-east-1",
+      "properties": {
+        "templateFile": "rapid-photo-upload-dev-frontend.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Application": "rapid-photo-upload",
+          "Component": "Frontend",
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "rapid-photo-upload"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-deploy-role-971422717446-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-cfn-exec-role-971422717446-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-971422717446-us-east-1/9de84c2e1880bef2ee4565aeaa2a584d5a49761a7431c6cbde4f4cbcfa4fc75e.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "rapid-photo-upload-dev-frontend.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::971422717446:role/cdk-hnb659fds-lookup-role-971422717446-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "rapid-photo-upload-dev-frontend.assets"
+      ],
+      "metadata": {
+        "/rapid-photo-upload-dev-frontend": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Application",
+                "Value": "rapid-photo-upload"
+              },
+              {
+                "Key": "Component",
+                "Value": "Frontend"
+              },
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "rapid-photo-upload"
+              }
+            ]
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucket75C24D94"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucketPolicyE10E3262"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteBucketAutoDeleteObjectsCustomResource8750E461"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+          {
+            "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+            "data": true
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/OAI/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OAIE1EFC67F"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/CachePolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CachePolicy26D8A535"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/ApiOriginRequestPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiOriginRequestPolicy7A536D4C"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Distribution/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Distribution830FAC52"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteDeployment/AwsCliLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteDeploymentAwsCliLayer5BFD2264"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteDeployment/CustomResource-512MiB/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteDeploymentCustomResource512MiB7E21B746"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB": [
+          {
+            "type": "aws:cdk:is-custom-resource-handler-singleton",
+            "data": true
+          },
+          {
+            "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+            "data": 2
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB6723FB92"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/WebsiteUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebsiteUrl"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/DistributionId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DistributionId"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/BucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BucketName"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/rapid-photo-upload-dev-frontend/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "rapid-photo-upload-dev-frontend"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "aws-cdk-lib/feature-flag-report": {
+      "type": "cdk:feature-flag-report",
+      "properties": {
+        "module": "aws-cdk-lib",
+        "flags": {
+          "@aws-cdk/aws-signer:signingProfileNamePassedToCfn": {
+            "recommendedValue": true,
+            "explanation": "Pass signingProfileName to CfnSigningProfile"
+          },
+          "@aws-cdk/core:newStyleStackSynthesis": {
+            "recommendedValue": true,
+            "explanation": "Switch to new stack synthesis method which enables CI/CD",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/core:stackRelativeExports": {
+            "recommendedValue": true,
+            "explanation": "Name exports based on the construct paths relative to the stack, rather than the global construct path",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-ecs-patterns:secGroupsDisablesImplicitOpenListener": {
+            "recommendedValue": true,
+            "explanation": "Disable implicit openListener when custom security groups are provided"
+          },
+          "@aws-cdk/aws-rds:lowercaseDbIdentifier": {
+            "recommendedValue": true,
+            "explanation": "Force lowercasing of RDS Cluster names in CDK",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": {
+            "recommendedValue": true,
+            "explanation": "Allow adding/removing multiple UsagePlanKeys independently",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-lambda:recognizeVersionProps": {
+            "recommendedValue": true,
+            "explanation": "Enable this feature flag to opt in to the updated logical id calculation for Lambda Version created using the  `fn.currentVersion`.",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-lambda:recognizeLayerVersion": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable this feature flag to opt in to the updated logical id calculation for Lambda Version created using the `fn.currentVersion`."
+          },
+          "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": {
+            "recommendedValue": true,
+            "explanation": "Enable this feature flag to have cloudfront distributions use the security policy TLSv1.2_2021 by default.",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/core:checkSecretUsage": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable this flag to make it impossible to accidentally use SecretValues in unsafe locations"
+          },
+          "@aws-cdk/core:target-partitions": {
+            "userValue": [
+              "aws",
+              "aws-cn"
+            ],
+            "recommendedValue": [
+              "aws",
+              "aws-cn"
+            ],
+            "explanation": "What regions to include in lookup tables of environment agnostic stacks"
+          },
+          "@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "ECS extensions will automatically add an `awslogs` driver if no logging is specified"
+          },
+          "@aws-cdk/aws-ec2:uniqueImdsv2TemplateName": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable this feature flag to have Launch Templates generated by the `InstanceRequireImdsv2Aspect` use unique names."
+          },
+          "@aws-cdk/aws-ecs:arnFormatIncludesClusterName": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "ARN format used by ECS. In the new ARN format, the cluster name is part of the resource ID."
+          },
+          "@aws-cdk/aws-iam:minimizePolicies": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Minimize IAM policies by combining Statements"
+          },
+          "@aws-cdk/core:validateSnapshotRemovalPolicy": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Error on snapshot removal policies on resources that do not support it."
+          },
+          "@aws-cdk/aws-codepipeline:crossAccountKeyAliasStackSafeResourceName": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Generate key aliases that include the stack name"
+          },
+          "@aws-cdk/aws-s3:createDefaultLoggingPolicy": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable this feature flag to create an S3 bucket policy by default in cases where an AWS service would automatically create the Policy if one does not exist."
+          },
+          "@aws-cdk/aws-sns-subscriptions:restrictSqsDescryption": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Restrict KMS key policy for encrypted Queues a bit more"
+          },
+          "@aws-cdk/aws-apigateway:disableCloudWatchRole": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Make default CloudWatch Role behavior safe for multiple API Gateways in one environment"
+          },
+          "@aws-cdk/core:enablePartitionLiterals": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Make ARNs concrete if AWS partition is known"
+          },
+          "@aws-cdk/aws-events:eventsTargetQueueSameAccount": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Event Rules may only push to encrypted SQS queues in the same account"
+          },
+          "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Avoid setting the \"ECS\" deployment controller when adding a circuit breaker"
+          },
+          "@aws-cdk/aws-iam:importedRoleStackSafeDefaultPolicyName": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable this feature to create default policy names for imported roles that depend on the stack the role is in."
+          },
+          "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Use S3 Bucket Policy instead of ACLs for Server Access Logging"
+          },
+          "@aws-cdk/aws-route53-patters:useCertificate": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Use the official `Certificate` resource instead of `DnsValidatedCertificate`"
+          },
+          "@aws-cdk/customresources:installLatestAwsSdkDefault": {
+            "userValue": false,
+            "recommendedValue": false,
+            "explanation": "Whether to install the latest SDK by default in AwsCustomResource"
+          },
+          "@aws-cdk/aws-rds:databaseProxyUniqueResourceName": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Use unique resource name for Database Proxy"
+          },
+          "@aws-cdk/aws-codedeploy:removeAlarmsFromDeploymentGroup": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Remove CloudWatch alarms from deployment group"
+          },
+          "@aws-cdk/aws-apigateway:authorizerChangeDeploymentLogicalId": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Include authorizer configuration in the calculation of the API deployment logical ID."
+          },
+          "@aws-cdk/aws-ec2:launchTemplateDefaultUserData": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Define user data for a launch template by default when a machine image is provided."
+          },
+          "@aws-cdk/aws-secretsmanager:useAttachedSecretResourcePolicyForSecretTargetAttachments": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "SecretTargetAttachments uses the ResourcePolicy of the attached Secret."
+          },
+          "@aws-cdk/aws-redshift:columnId": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Whether to use an ID to track Redshift column changes"
+          },
+          "@aws-cdk/aws-stepfunctions-tasks:enableEmrServicePolicyV2": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enable AmazonEMRServicePolicy_v2 managed policies"
+          },
+          "@aws-cdk/aws-ec2:restrictDefaultSecurityGroup": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Restrict access to the VPC default security group"
+          },
+          "@aws-cdk/aws-apigateway:requestValidatorUniqueId": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Generate a unique id for each RequestValidator added to a method"
+          },
+          "@aws-cdk/aws-kms:aliasNameRef": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "KMS Alias name and keyArn will have implicit reference to KMS Key"
+          },
+          "@aws-cdk/aws-kms:applyImportedAliasPermissionsToPrincipal": {
+            "recommendedValue": true,
+            "explanation": "Enable grant methods on Aliases imported by name to use kms:ResourceAliases condition"
+          },
+          "@aws-cdk/aws-autoscaling:generateLaunchTemplateInsteadOfLaunchConfig": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Generate a launch template when creating an AutoScalingGroup"
+          },
+          "@aws-cdk/core:includePrefixInUniqueNameGeneration": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Include the stack prefix in the stack name generation process"
+          },
+          "@aws-cdk/aws-efs:denyAnonymousAccess": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "EFS denies anonymous clients accesses"
+          },
+          "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enables support for Multi-AZ with Standby deployment for opensearch domains"
+          },
+          "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enables aws-lambda-nodejs.Function to use the latest available NodeJs runtime as the default"
+          },
+          "@aws-cdk/aws-efs:mountTargetOrderInsensitiveLogicalId": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, mount targets will have a stable logicalId that is linked to the associated subnet."
+          },
+          "@aws-cdk/aws-rds:auroraClusterChangeScopeOfInstanceParameterGroupWithEachParameters": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, a scope of InstanceParameterGroup for AuroraClusterInstance with each parameters will change."
+          },
+          "@aws-cdk/aws-appsync:useArnForSourceApiAssociationIdentifier": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, will always use the arn for identifiers for CfnSourceApiAssociation in the GraphqlApi construct rather than id."
+          },
+          "@aws-cdk/aws-rds:preventRenderingDeprecatedCredentials": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, creating an RDS database cluster from a snapshot will only render credentials for snapshot credentials."
+          },
+          "@aws-cdk/aws-codepipeline-actions:useNewDefaultBranchForCodeCommitSource": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, the CodeCommit source action is using the default branch name 'main'."
+          },
+          "@aws-cdk/aws-cloudwatch-actions:changeLambdaPermissionLogicalIdForLambdaAction": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, the logical ID of a Lambda permission for a Lambda action includes an alarm ID."
+          },
+          "@aws-cdk/aws-codepipeline:crossAccountKeysDefaultValueToFalse": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enables Pipeline to set the default value for crossAccountKeys to false."
+          },
+          "@aws-cdk/aws-codepipeline:defaultPipelineTypeToV2": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "Enables Pipeline to set the default pipeline type to V2."
+          },
+          "@aws-cdk/aws-kms:reduceCrossAccountRegionPolicyScope": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, IAM Policy created from KMS key grant will reduce the resource scope to this key only."
+          },
+          "@aws-cdk/pipelines:reduceAssetRoleTrustScope": {
+            "recommendedValue": true,
+            "explanation": "Remove the root account principal from PipelineAssetsFileRole trust policy",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-eks:nodegroupNameAttribute": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, nodegroupName attribute of the provisioned EKS NodeGroup will not have the cluster name prefix."
+          },
+          "@aws-cdk/aws-ec2:ebsDefaultGp3Volume": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, the default volume type of the EBS volume will be GP3"
+          },
+          "@aws-cdk/aws-ecs:removeDefaultDeploymentAlarm": {
+            "userValue": true,
+            "recommendedValue": true,
+            "explanation": "When enabled, remove default deployment alarm settings"
+          },
+          "@aws-cdk/custom-resources:logApiResponseDataPropertyTrueDefault": {
+            "userValue": false,
+            "recommendedValue": false,
+            "explanation": "When enabled, the custom resource used for `AwsCustomResource` will configure the `logApiResponseData` property as true by default"
+          },
+          "@aws-cdk/aws-s3:keepNotificationInImportedBucket": {
+            "userValue": false,
+            "recommendedValue": false,
+            "explanation": "When enabled, Adding notifications to a bucket in the current stack will not remove notification from imported stack."
+          },
+          "@aws-cdk/aws-stepfunctions-tasks:useNewS3UriParametersForBedrockInvokeModelTask": {
+            "recommendedValue": true,
+            "explanation": "When enabled, use new props for S3 URI field in task definition of state machine for bedrock invoke model.",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/core:explicitStackTags": {
+            "recommendedValue": true,
+            "explanation": "When enabled, stack tags need to be assigned explicitly on a Stack."
+          },
+          "@aws-cdk/aws-ecs:enableImdsBlockingDeprecatedFeature": {
+            "recommendedValue": false,
+            "explanation": "When set to true along with canContainersAccessInstanceRole=false in ECS cluster, new updated commands will be added to UserData to block container accessing IMDS. **Applicable to Linux only. IMPORTANT: See [details.](#aws-cdkaws-ecsenableImdsBlockingDeprecatedFeature)**"
+          },
+          "@aws-cdk/aws-ecs:disableEcsImdsBlocking": {
+            "recommendedValue": true,
+            "explanation": "When set to true, CDK synth will throw exception if canContainersAccessInstanceRole is false. **IMPORTANT: See [details.](#aws-cdkaws-ecsdisableEcsImdsBlocking)**"
+          },
+          "@aws-cdk/aws-ecs:reduceEc2FargateCloudWatchPermissions": {
+            "recommendedValue": true,
+            "explanation": "When enabled, we will only grant the necessary permissions when users specify cloudwatch log group through logConfiguration"
+          },
+          "@aws-cdk/aws-dynamodb:resourcePolicyPerReplica": {
+            "recommendedValue": true,
+            "explanation": "When enabled will allow you to specify a resource policy per replica, and not copy the source table policy to all replicas"
+          },
+          "@aws-cdk/aws-ec2:ec2SumTImeoutEnabled": {
+            "recommendedValue": true,
+            "explanation": "When enabled, initOptions.timeout and resourceSignalTimeout values will be summed together."
+          },
+          "@aws-cdk/aws-appsync:appSyncGraphQLAPIScopeLambdaPermission": {
+            "recommendedValue": true,
+            "explanation": "When enabled, a Lambda authorizer Permission created when using GraphqlApi will be properly scoped with a SourceArn."
+          },
+          "@aws-cdk/aws-rds:setCorrectValueForDatabaseInstanceReadReplicaInstanceResourceId": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the value of property `instanceResourceId` in construct `DatabaseInstanceReadReplica` will be set to the correct value which is `DbiResourceId` instead of currently `DbInstanceArn`"
+          },
+          "@aws-cdk/core:cfnIncludeRejectComplexResourceUpdateCreatePolicyIntrinsics": {
+            "recommendedValue": true,
+            "explanation": "When enabled, CFN templates added with `cfn-include` will error if the template contains Resource Update or Create policies with CFN Intrinsics that include non-primitive values."
+          },
+          "@aws-cdk/aws-lambda-nodejs:sdkV3ExcludeSmithyPackages": {
+            "recommendedValue": true,
+            "explanation": "When enabled, both `@aws-sdk` and `@smithy` packages will be excluded from the Lambda Node.js 18.x runtime to prevent version mismatches in bundled applications."
+          },
+          "@aws-cdk/aws-stepfunctions-tasks:fixRunEcsTaskPolicy": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the resource of IAM Run Ecs policy generated by SFN EcsRunTask will reference the definition, instead of constructing ARN."
+          },
+          "@aws-cdk/aws-ec2:bastionHostUseAmazonLinux2023ByDefault": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the BastionHost construct will use the latest Amazon Linux 2023 AMI, instead of Amazon Linux 2."
+          },
+          "@aws-cdk/core:aspectStabilization": {
+            "recommendedValue": true,
+            "explanation": "When enabled, a stabilization loop will be run when invoking Aspects during synthesis.",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-route53-targets:userPoolDomainNameMethodWithoutCustomResource": {
+            "recommendedValue": true,
+            "explanation": "When enabled, use a new method for DNS Name of user pool domain target without creating a custom resource."
+          },
+          "@aws-cdk/aws-elasticloadbalancingV2:albDualstackWithoutPublicIpv4SecurityGroupRulesDefault": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the default security group ingress rules will allow IPv6 ingress from anywhere"
+          },
+          "@aws-cdk/aws-iam:oidcRejectUnauthorizedConnections": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the default behaviour of OIDC provider will reject unauthorized connections"
+          },
+          "@aws-cdk/core:enableAdditionalMetadataCollection": {
+            "recommendedValue": true,
+            "explanation": "When enabled, CDK will expand the scope of usage data collected to better inform CDK development and improve communication for security concerns and emerging issues."
+          },
+          "@aws-cdk/aws-lambda:createNewPoliciesWithAddToRolePolicy": {
+            "recommendedValue": false,
+            "explanation": "[Deprecated] When enabled, Lambda will create new inline policies with AddToRolePolicy instead of adding to the Default Policy Statement"
+          },
+          "@aws-cdk/aws-s3:setUniqueReplicationRoleName": {
+            "recommendedValue": true,
+            "explanation": "When enabled, CDK will automatically generate a unique role name that is used for s3 object replication."
+          },
+          "@aws-cdk/pipelines:reduceStageRoleTrustScope": {
+            "recommendedValue": true,
+            "explanation": "Remove the root account principal from Stage addActions trust policy",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-events:requireEventBusPolicySid": {
+            "recommendedValue": true,
+            "explanation": "When enabled, grantPutEventsTo() will use resource policies with Statement IDs for service principals."
+          },
+          "@aws-cdk/core:aspectPrioritiesMutating": {
+            "recommendedValue": true,
+            "explanation": "When set to true, Aspects added by the construct library on your behalf will be given a priority of MUTATING."
+          },
+          "@aws-cdk/aws-dynamodb:retainTableReplica": {
+            "recommendedValue": true,
+            "explanation": "When enabled, table replica will be default to the removal policy of source table unless specified otherwise."
+          },
+          "@aws-cdk/cognito:logUserPoolClientSecretValue": {
+            "recommendedValue": false,
+            "explanation": "When disabled, the value of the user pool client secret will not be logged in the custom resource lambda function logs."
+          },
+          "@aws-cdk/pipelines:reduceCrossAccountActionRoleTrustScope": {
+            "recommendedValue": true,
+            "explanation": "When enabled, scopes down the trust policy for the cross-account action role",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-stepfunctions:useDistributedMapResultWriterV2": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the resultWriterV2 property of DistributedMap will be used insted of resultWriter"
+          },
+          "@aws-cdk/s3-notifications:addS3TrustKeyPolicyForSnsSubscriptions": {
+            "recommendedValue": true,
+            "explanation": "Add an S3 trust policy to a KMS key resource policy for SNS subscriptions."
+          },
+          "@aws-cdk/aws-ec2:requirePrivateSubnetsForEgressOnlyInternetGateway": {
+            "recommendedValue": true,
+            "explanation": "When enabled, the EgressOnlyGateway resource is only created if private subnets are defined in the dual-stack VPC."
+          },
+          "@aws-cdk/aws-ec2-alpha:useResourceIdForVpcV2Migration": {
+            "recommendedValue": false,
+            "explanation": "When enabled, use resource IDs for VPC V2 migration"
+          },
+          "@aws-cdk/aws-s3:publicAccessBlockedByDefault": {
+            "recommendedValue": true,
+            "explanation": "When enabled, setting any combination of options for BlockPublicAccess will automatically set true for any options not defined."
+          },
+          "@aws-cdk/aws-lambda:useCdkManagedLogGroup": {
+            "recommendedValue": true,
+            "explanation": "When enabled, CDK creates and manages loggroup for the lambda function"
+          },
+          "@aws-cdk/aws-elasticloadbalancingv2:networkLoadBalancerWithSecurityGroupByDefault": {
+            "recommendedValue": true,
+            "explanation": "When enabled, Network Load Balancer will be created with a security group by default."
+          },
+          "@aws-cdk/aws-stepfunctions-tasks:httpInvokeDynamicJsonPathEndpoint": {
+            "recommendedValue": true,
+            "explanation": "When enabled, allows using a dynamic apiEndpoint with JSONPath format in HttpInvoke tasks.",
+            "unconfiguredBehavesLike": {
+              "v2": true
+            }
+          },
+          "@aws-cdk/aws-ecs-patterns:uniqueTargetGroupId": {
+            "recommendedValue": true,
+            "explanation": "When enabled, ECS patterns will generate unique target group IDs to prevent conflicts during load balancer replacement"
+          }
+        }
+      }
+    }
+  },
+  "minimumCliVersion": "2.1031.2"
+}

@@ -1,0 +1,493 @@
+{
+ "Description": "CloudWatch monitoring for rapid-photo-upload dev",
+ "Resources": {
+  "Dashboard9E4231ED": {
+   "Type": "AWS::CloudWatch::Dashboard",
+   "Properties": {
+    "DashboardBody": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"widgets\":[{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Service CPU Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Service Memory Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ECS\",\"MemoryUtilization\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Task Count\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"ECS/ContainerInsights\",\"RunningTaskCount\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Request Count\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApplicationELB\",\"RequestCount\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Target Response Time\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApplicationELB\",\"TargetResponseTime\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB HTTP Response Codes\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApplicationELB\",\"HTTPCode_Target_2XX_Count\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"label\":\"2XX\",\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_Target_4XX_Count\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"label\":\"4XX\",\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_Target_5XX_Count\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"label\":\"5XX\",\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"RDS CPU Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"CPUUtilization\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"RDS Database Connections\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"DatabaseConnections\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":24,\"properties\":{\"view\":\"timeSeries\",\"title\":\"RDS Free Storage Space\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"FreeStorageSpace\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}}]}"
+      ]
+     ]
+    },
+    "DashboardName": "rapid-photo-upload-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/Dashboard/Resource"
+   }
+  },
+  "EcsCpuAlarm1D439C07": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "ECS service CPU utilization is too high",
+    "AlarmName": "rapid-photo-upload-dev-ecs-cpu-high",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "ClusterName",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputRefClusterEB0386A796A0E3FE"
+      }
+     },
+     {
+      "Name": "ServiceName",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttServiceD69D759BName51127533"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/ECS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 90,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/EcsCpuAlarm/Resource"
+   }
+  },
+  "EcsMemoryAlarmB50C6B61": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "ECS service memory utilization is too high",
+    "AlarmName": "rapid-photo-upload-dev-ecs-memory-high",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "ClusterName",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputRefClusterEB0386A796A0E3FE"
+      }
+     },
+     {
+      "Name": "ServiceName",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttServiceD69D759BName51127533"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "MemoryUtilization",
+    "Namespace": "AWS/ECS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 95,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/EcsMemoryAlarm/Resource"
+   }
+  },
+  "Alb5xxAlarm99BFF946": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "ALB is returning 5XX errors",
+    "AlarmName": "rapid-photo-upload-dev-alb-5xx-errors",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "LoadBalancer",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "HTTPCode_Target_5XX_Count",
+    "Namespace": "AWS/ApplicationELB",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 10,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/Alb5xxAlarm/Resource"
+   }
+  },
+  "UnhealthyTargetAlarmC6753764": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "ALB has unhealthy targets",
+    "AlarmName": "rapid-photo-upload-dev-unhealthy-targets",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "LoadBalancer",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-compute:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "UnHealthyHostCount",
+    "Namespace": "AWS/ApplicationELB",
+    "Period": 60,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 1,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/UnhealthyTargetAlarm/Resource"
+   }
+  },
+  "RdsCpuAlarm29EF1690": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "RDS CPU utilization is too high",
+    "AlarmName": "rapid-photo-upload-dev-rds-cpu-high",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 80,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/RdsCpuAlarm/Resource"
+   }
+  },
+  "RdsFreeStorageAlarm0E00E3B8": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "RDS free storage space is low",
+    "AlarmName": "rapid-photo-upload-dev-rds-low-storage",
+    "ComparisonOperator": "LessThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "FreeStorageSpace",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 5368709120,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/RdsFreeStorageAlarm/Resource"
+   }
+  },
+  "RdsConnectionAlarmD4B8992D": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "RDS connection count is high",
+    "AlarmName": "rapid-photo-upload-dev-rds-high-connections",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Fn::ImportValue": "rapid-photo-upload-dev-database:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "DatabaseConnections",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ],
+    "Threshold": 80,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/RdsConnectionAlarm/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WISw6DIBBAz+Iepjg3aNp9k/YAzQgaUYSGGWRhvHujXXT1PgiICKahytq6WQffwfYSsrOiym8bUnGVxI6w3YnHLlF26jbEf1wD5eVYp+yHPYp8iuwqJtfDxJcVDbQtmGZi73UuUfzSw/PHLw8Y2zKCAAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-monitoring/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DashboardUrl": {
+   "Description": "CloudWatch Dashboard URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=",
+      {
+       "Ref": "Dashboard9E4231ED"
+      }
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

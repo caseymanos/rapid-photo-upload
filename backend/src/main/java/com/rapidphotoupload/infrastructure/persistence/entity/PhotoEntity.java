@@ -74,6 +74,22 @@ public class PhotoEntity {
     
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
+
+    @Type(JsonType.class)
+    @Column(name = "thumbnail_variants", columnDefinition = "jsonb")
+    private Map<String, String> thumbnailVariants = new HashMap<>();
+
+    @Column(name = "thumbnail_fallback_url")
+    private String thumbnailFallbackUrl;
+
+    @Column(name = "placeholder_url")
+    private String placeholderUrl;
+
+    @Column(name = "placeholder_fallback_url")
+    private String placeholderFallbackUrl;
+
+    @Column(name = "placeholder_base64", columnDefinition = "text")
+    private String placeholderBase64;
     
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

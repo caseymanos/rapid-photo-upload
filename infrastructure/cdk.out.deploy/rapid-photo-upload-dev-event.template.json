@@ -1,0 +1,94 @@
+{
+ "Description": "EventBridge infrastructure for rapid-photo-upload dev",
+ "Resources": {
+  "EventBus7B8748AA": {
+   "Type": "AWS::Events::EventBus",
+   "Properties": {
+    "Name": "rapid-photo-upload-dev-events",
+    "Tags": [
+     {
+      "Key": "Application",
+      "Value": "rapid-photo-upload"
+     },
+     {
+      "Key": "Environment",
+      "Value": "dev"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "rapid-photo-upload"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-event/EventBus/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/zPSMzIy0jNQTCwv1k1OydbNyUzSqw4uSUzO1kksL45PLUvNKynWq3YF0U6lxTrOaXkwdi2I419aUlBaUquTl5+SqpdVrF9mZKBnaKhnoJhVnJmpW1SaV5KZm6oXBKEB270y+20AAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "rapid-photo-upload-dev-event/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "EventBusName": {
+   "Description": "Event bus name",
+   "Value": {
+    "Ref": "EventBus7B8748AA"
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-event-bus"
+   }
+  },
+  "ExportsOutputRefEventBus7B8748AA3BA3246C": {
+   "Value": {
+    "Ref": "EventBus7B8748AA"
+   },
+   "Export": {
+    "Name": "rapid-photo-upload-dev-event:ExportsOutputRefEventBus7B8748AA3BA3246C"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

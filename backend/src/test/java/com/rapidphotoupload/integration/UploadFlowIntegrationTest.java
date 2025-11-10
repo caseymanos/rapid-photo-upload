@@ -79,11 +79,12 @@
 
       private User testUser;
 
-      @BeforeEach
-      void setUp() {
-          // Create test user
-          testUser = new User("test@example.com", "password123");
-          testUser = userRepository.save(testUser);
+    @BeforeEach
+    void setUp() {
+        // Create a unique user each time to avoid unique index collisions between tests
+        String uniqueEmail = "test+" + UUID.randomUUID() + "@example.com";
+        testUser = new User(uniqueEmail, "password123");
+        testUser = userRepository.save(testUser);
 
           // Mock S3 interactions
           when(s3StorageService.getBucketName()).thenReturn("test-bucket");
@@ -124,7 +125,8 @@
 
           assertThat(initiateResponse).isNotNull();
           assertThat(initiateResponse.getPhotoId()).isNotNull();
-          assertThat(initiateResponse.getMultipartUploadId()).isNotNull();
+          assertThat(initiateResponse.getMultipartUploadId()).isNull();
+          assertThat(initiateResponse.isSinglePartUpload()).isTrue();
           assertThat(initiateResponse.getPresignedUrls()).hasSize(1);
 
           // Verify photo was created in database

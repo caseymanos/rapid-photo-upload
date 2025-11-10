@@ -10,7 +10,7 @@ spring:
     hikari:
       maximum-pool-size: 50
       minimum-idle: 10
-      connection-timeout: 10000
+      connection-timeout: 30000
       idle-timeout: 300000
       max-lifetime: 1800000
       leak-detection-threshold: 60000
@@ -47,11 +47,31 @@ aws:
   region: ${AWS_REGION:us-east-1}
   s3:
     bucket:
-      name: ${S3_BUCKET_NAME:rapid-photo-upload-production}
+      name: ${S3_BUCKET_NAME:rapid-photo-upload-dev}
+    public-base-url: ${S3_PUBLIC_BASE_URL:}
+    thumbnails:
+      prefix: ${S3_THUMBNAIL_PREFIX:thumbnails/}
     presigned-url:
       expiration-hours: 2
   eventbridge:
     bus-name: ${EVENTBRIDGE_BUS_NAME:default}
+
+cdn:
+  images:
+    enabled: ${CDN_IMAGES_ENABLED:false}
+    base-url: ${CDN_BASE_URL:}
+    path-prefix: /images
+    default-format: ${CDN_DEFAULT_FORMAT:webp}
+    feature-flag-key: ${CDN_FEATURE_FLAG:image-cdn}
+    signing:
+      enabled: ${CDN_SIGNING_ENABLED:false}
+      key-pair-id: ${CDN_KEY_PAIR_ID:}
+      private-key-pem: ${CDN_PRIVATE_KEY_PEM:}
+      url-ttl: ${CDN_SIGNED_URL_TTL:PT30M}
+
+feature:
+  flags:
+    image-cdn: ${FEATURE_FLAG_IMAGE_CDN:false}
 
 security:
   jwt:
@@ -93,3 +113,7 @@ logging:
     org.hibernate: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+thumbnails:
+  backfill:
+    batch-size: ${THUMBNAIL_BACKFILL_BATCH_SIZE:50}

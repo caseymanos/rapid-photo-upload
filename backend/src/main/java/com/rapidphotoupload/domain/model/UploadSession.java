@@ -33,23 +33,19 @@ public class UploadSession {
     private List<DomainEvent> domainEvents = new ArrayList<>();
     
     public UploadSession(UUID id, UUID userId) {
-        this.id = id;
-        this.userId = userId;
-        this.sessionToken = generateSessionToken();
-        this.status = SessionStatus.IN_PROGRESS;
-        this.startedAt = Instant.now();
-        this.totalPhotos = 0;
-        this.completedPhotos = 0;
-        this.failedPhotos = 0;
-        this.version = 0L;
+        this(id, userId, 0);
+    }
 
+    public UploadSession(UUID id, UUID userId, int expectedPhotoCount) {
+        this(id, userId, generateSessionToken(), expectedPhotoCount, 0, 0,
+            SessionStatus.IN_PROGRESS, Instant.now(), null, null);
         addDomainEvent(new UploadSessionStarted(id, userId, Instant.now()));
     }
 
     // Public constructor for persistence reconstruction
     public UploadSession(UUID id, UUID userId, String sessionToken, int totalPhotos,
                          int completedPhotos, int failedPhotos, SessionStatus status,
-                         Instant startedAt, Instant completedAt) {
+                         Instant startedAt, Instant completedAt, Long version) {
         this.id = id;
         this.userId = userId;
         this.sessionToken = sessionToken;
@@ -59,14 +55,16 @@ public class UploadSession {
         this.status = status;
         this.startedAt = startedAt;
         this.completedAt = completedAt;
-        this.version = 0L;
+        this.version = version;
     }
     
     public void registerPhoto() {
         if (this.status != SessionStatus.IN_PROGRESS) {
             throw new IllegalStateException("Cannot add photos to session in status: " + this.status);
         }
-        this.totalPhotos++;
+        if (this.totalPhotos <= 0) {
+            this.totalPhotos++;
+        }
     }
     
     public void markPhotoCompleted() {
@@ -107,7 +105,7 @@ public class UploadSession {
         this.completedAt = Instant.now();
     }
     
-    private String generateSessionToken() {
+    private static String generateSessionToken() {
         return UUID.randomUUID().toString();
     }
     

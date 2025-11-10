@@ -69,4 +69,11 @@ public interface PhotoRepository {
      * @param photoId the photo ID
      */
     void deleteById(UUID photoId);
+
+    /**
+     * Find completed uploads that do not yet have generated derivatives.
+     * @param batchSize maximum number of records to return
+     * @return list of photos missing derivative assets
+     */
+    List<Photo> findCompletedWithoutDerivatives(int batchSize);
 }

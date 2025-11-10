@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "RapidPhotoUpload",
+    "slug": "rapid-photo-upload",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "extra": {
+      "apiUrl": "http://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/api/v1",
+      "wsUrl": "ws://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/ws"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rapidphotoupload.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to take photos for upload.",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to select photos for upload."
+      }
+    },
+    "android": {
+      "package": "com.rapidphotoupload.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {},
+    "plugins": [
+      "expo-image-picker",
+      "expo-file-system"
+    ]
+  }
+}

@@ -21,6 +21,8 @@ public class InitiateUploadResponse {
     private String multipartUploadId;
     private List<PresignedPartUrl> presignedUrls;
     private Instant expiresAt;
+    private boolean singlePartUpload;
+    private long chunkSizeBytes;
     
     @Data
     @NoArgsConstructor

@@ -22,6 +22,14 @@
       presigned-url:
         expiration-hours: 2
 
+  cdn:
+    images:
+      enabled: false
+
+  feature:
+    flags:
+      image-cdn: false
+
   security:
     jwt:
       secret: test-secret-key-for-testing-only

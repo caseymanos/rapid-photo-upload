@@ -1,0 +1,32 @@
+# Ignore everything except what we need
+*
+
+# Allow specific files and directories
+!pom.xml
+!src/
+
+# Maven target directory (build outputs)
+target/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore

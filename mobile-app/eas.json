@@ -1,0 +1,53 @@
+{
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "autoIncrement": true,
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_BASE_URL": "http://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/api/v1",
+        "WS_URL": "ws://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/ws"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "env": {
+        "API_BASE_URL": "http://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/api/v1",
+        "WS_URL": "ws://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/ws"
+      }
+    },
+    "production": {
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "API_BASE_URL": "http://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/api/v1",
+        "WS_URL": "ws://rapid-photo-upload-dev-alb-1693661982.us-east-1.elb.amazonaws.com/ws"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

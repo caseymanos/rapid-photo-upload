@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { authApi } from '../../../shared/api/endpoints';
-import { apiClient } from '../../../shared/api/apiClient';
+import { supabaseAuth } from '../../../services/supabaseAuth';
 import storage from '../../../shared/utils/storage';
 import { LoginRequest, RegisterRequest } from '../../../shared/types';
 
@@ -29,10 +28,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (data: LoginRequest) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.login(data);
-      const { token, userId, email } = response.data;
+      const { userId, email, token } = await supabaseAuth.signIn(data);
 
-      await apiClient.setToken(token);
+      // Store user data locally
       await storage.setUserId(userId);
       await storage.setUserEmail(email);
 
@@ -43,7 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.message || 'Login failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -52,10 +50,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: RegisterRequest) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.register(data);
-      const { token, userId, email } = response.data;
+      const { userId, email, token } = await supabaseAuth.signUp(data);
 
-      await apiClient.setToken(token);
+      // Store user data locally
       await storage.setUserId(userId);
       await storage.setUserEmail(email);
 
@@ -66,34 +63,56 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.message || 'Registration failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   logout: async () => {
-    await authApi.logout();
-    await storage.clearAuth();
+    try {
+      await supabaseAuth.signOut();
+      await storage.clearAuth();
 
-    set({
-      isAuthenticated: false,
-      userId: null,
-      email: null,
-      error: null,
-    });
+      set({
+        isAuthenticated: false,
+        userId: null,
+        email: null,
+        error: null,
+      });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      // Clear local state even if API call fails
+      await storage.clearAuth();
+      set({
+        isAuthenticated: false,
+        userId: null,
+        email: null,
+        error: null,
+      });
+    }
   },
 
   clearError: () => set({ error: null }),
 
   checkAuth: async () => {
-    const token = apiClient.getToken();
-    const userId = await storage.getUserId();
-    const email = await storage.getUserEmail();
+    try {
+      const session = await supabaseAuth.getSession();
 
-    if (token && userId && email) {
-      set({ isAuthenticated: true, userId, email });
-    } else {
+      if (session?.user) {
+        const userId = session.user.id;
+        const email = session.user.email!;
+
+        // Update local storage
+        await storage.setUserId(userId);
+        await storage.setUserEmail(email);
+
+        set({ isAuthenticated: true, userId, email });
+      } else {
+        set({ isAuthenticated: false, userId: null, email: null });
+      }
+    } catch (error) {
+      console.error('Check auth error:', error);
       set({ isAuthenticated: false, userId: null, email: null });
     }
   },

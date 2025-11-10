@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { authApi } from '@/shared/api/endpoints';
-import { apiClient } from '@/shared/api/apiClient';
+import { supabaseAuth } from '@/lib/supabaseAuth';
 import { LoginRequest, RegisterRequest } from '@/shared/types';
 
 interface AuthState {
@@ -13,9 +12,9 @@ interface AuthState {
   // Actions
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
-  checkAuth: () => void;
+  checkAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -28,10 +27,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (data: LoginRequest) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.login(data);
-      const { token, userId, email } = response.data;
+      const { userId, email, token } = await supabaseAuth.signIn(data);
 
-      apiClient.setToken(token);
+      // Store user data locally
       localStorage.setItem('userId', userId);
       localStorage.setItem('email', email);
 
@@ -42,7 +40,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.message || 'Login failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -51,10 +49,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: RegisterRequest) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.register(data);
-      const { token, userId, email } = response.data;
+      const { userId, email, token } = await supabaseAuth.signUp(data);
 
-      apiClient.setToken(token);
+      // Store user data locally
       localStorage.setItem('userId', userId);
       localStorage.setItem('email', email);
 
@@ -65,34 +62,59 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.message || 'Registration failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
-  logout: () => {
-    authApi.logout();
-    localStorage.removeItem('userId');
-    localStorage.removeItem('email');
+  logout: async () => {
+    try {
+      await supabaseAuth.signOut();
+      localStorage.removeItem('userId');
+      localStorage.removeItem('email');
 
-    set({
-      isAuthenticated: false,
-      userId: null,
-      email: null,
-      error: null,
-    });
+      set({
+        isAuthenticated: false,
+        userId: null,
+        email: null,
+        error: null,
+      });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      // Clear local state even if API call fails
+      localStorage.removeItem('userId');
+      localStorage.removeItem('email');
+      set({
+        isAuthenticated: false,
+        userId: null,
+        email: null,
+        error: null,
+      });
+    }
   },
 
   clearError: () => set({ error: null }),
 
-  checkAuth: () => {
-    const token = apiClient.getToken();
-    const userId = localStorage.getItem('userId');
-    const email = localStorage.getItem('email');
+  checkAuth: async () => {
+    try {
+      const session = await supabaseAuth.getSession();
 
-    if (token && userId && email) {
-      set({ isAuthenticated: true, userId, email });
+      if (session?.user) {
+        const userId = session.user.id;
+        const email = session.user.email!;
+
+        // Update local storage
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('email', email);
+
+        set({ isAuthenticated: true, userId, email });
+      } else {
+        set({ isAuthenticated: false, userId: null, email: null });
+      }
+    } catch (error) {
+      console.error('Check auth error:', error);
+      set({ isAuthenticated: false, userId: null, email: null });
     }
   },
 }));

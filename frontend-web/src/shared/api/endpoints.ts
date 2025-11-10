@@ -3,6 +3,7 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
+  CreateSessionRequest,
   InitiateUploadRequest,
   InitiateUploadResponse,
   CompleteUploadRequest,
@@ -10,6 +11,8 @@ import {
   UpdatePhotoMetadataRequest,
   SessionStatusResponse,
   PaginatedPhotosResponse,
+  UpdateSessionMetricsRequest,
+  UploadStatsResponse,
 } from '../types';
 
 // Auth endpoints
@@ -27,6 +30,9 @@ export const authApi = {
 
 // Upload endpoints
 export const uploadApi = {
+  createSession: (data: CreateSessionRequest) =>
+    apiClient.post<SessionStatusResponse>('/uploads/sessions', data),
+
   initiateUpload: (data: InitiateUploadRequest) =>
     apiClient.post<InitiateUploadResponse>('/uploads/initiate', data),
 
@@ -35,6 +41,9 @@ export const uploadApi = {
 
   getSessionStatus: (sessionId: string) =>
     apiClient.get<SessionStatusResponse>(`/uploads/sessions/${sessionId}/status`),
+
+  updateSessionMetrics: (sessionId: string, data: UpdateSessionMetricsRequest) =>
+    apiClient.post<void>(`/uploads/sessions/${sessionId}/metrics`, data),
 };
 
 // Photo endpoints
@@ -67,4 +76,12 @@ export const photoApi = {
 
   deleteAllPhotos: () =>
     apiClient.delete<{ deletedCount: number }>('/photos'),
+};
+
+// Stats endpoints
+export const statsApi = {
+  getUploadStats: (recentSessionLimit: number = 10) =>
+    apiClient.get<UploadStatsResponse>('/stats/uploads', {
+      params: { recentSessionLimit },
+    }),
 };

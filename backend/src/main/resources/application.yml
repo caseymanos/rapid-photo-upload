@@ -3,9 +3,9 @@ spring:
     name: rapid-photo-upload
   
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/photoupload}
-    username: ${DATABASE_USERNAME:dbadmin}
-    password: ${DATABASE_PASSWORD:password}
+    url: jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+    username: postgres.nhadlfbxbivlhtkbolve
+    password: ${SUPABASE_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 50
@@ -33,11 +33,9 @@ spring:
         order_inserts: true
         order_updates: true
   
+  
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
-    validate-on-migrate: true
+    enabled: false  
   
   servlet:
     multipart:
@@ -77,6 +75,8 @@ security:
   jwt:
     secret: ${JWT_SECRET:your-secret-key-change-in-production}
     expiration-ms: 86400000  # 24 hours
+  supabase:
+    jwt-secret: ${SUPABASE_JWT_SECRET:your-supabase-jwt-secret-change-in-production}
 
 resilience4j:
   circuitbreaker:

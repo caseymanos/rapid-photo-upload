@@ -19,8 +19,8 @@ class UploadService {
    * Main upload function that coordinates the entire multipart upload process
    * Includes performance instrumentation
    */
-  async uploadFile(file: File, options: UploadOptions = {}): Promise<UploadResult> {
-    const overallStart = performance.now();
+  async uploadFile(file: File, sessionId?: string, options: UploadOptions = {}): Promise<UploadResult> {
+    const overallStart = performance.now()
     const perfMetrics = {
       initiate: 0,
       upload: 0,
@@ -34,6 +34,7 @@ class UploadService {
         originalFilename: file.name,
         fileSizeBytes: file.size,
         mimeType: file.type,
+        uploadSessionId: sessionId,
       };
 
       const { data: initResponse } = await uploadApi.initiateUpload(initRequest);

@@ -71,6 +71,11 @@ export interface SessionStatusResponse {
   status: SessionStatus;
   startedAt: string;
   completedAt?: string;
+  totalBytesUploaded?: number;
+  avgUploadDurationMs?: number;
+  avgThroughputMbps?: number;
+  minUploadDurationMs?: number;
+  maxUploadDurationMs?: number;
 }
 
 // Enums
@@ -99,6 +104,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface CreateSessionRequest {
+  expectedPhotoCount: number;
+}
+
 export interface InitiateUploadRequest {
   originalFilename: string;
   fileSizeBytes: number;
@@ -120,6 +129,14 @@ export interface UpdatePhotoMetadataRequest {
   metadata?: PhotoMetadata;
 }
 
+export interface UpdateSessionMetricsRequest {
+  totalBytesUploaded: number;
+  avgUploadDurationMs: number;
+  avgThroughputMbps: number;
+  minUploadDurationMs: number;
+  maxUploadDurationMs: number;
+}
+
 // Frontend-specific types
 export interface UploadItem {
   id: string;
@@ -131,10 +148,42 @@ export interface UploadItem {
   error?: string;
   startTime?: number;
   endTime?: number;
+  fileSize?: number;
+  uploadDurationMs?: number;
 }
 
 export interface UploadProgress {
   total: number;
   uploaded: number;
   percentage: number;
+}
+
+// Stats types
+export interface UploadStatsResponse {
+  aggregate: AggregateStats;
+  recentSessions: SessionSummary[];
+}
+
+export interface AggregateStats {
+  totalPhotos: number;
+  totalBytesUploaded: number;
+  totalSessions: number;
+  completedSessions: number;
+  failedSessions: number;
+  avgUploadDurationMs: number | null;
+  avgThroughputMbps: number | null;
+  successRate: number;
+}
+
+export interface SessionSummary {
+  sessionId: string;
+  totalPhotos: number;
+  completedPhotos: number;
+  failedPhotos: number;
+  status: string;
+  totalBytesUploaded: number | null;
+  avgUploadDurationMs: number | null;
+  avgThroughputMbps: number | null;
+  startedAt: string;
+  completedAt: string | null;
 }

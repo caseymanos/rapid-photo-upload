@@ -8,6 +8,8 @@ import com.rapidphotoupload.application.handler.CompleteUploadHandler;
 import com.rapidphotoupload.application.handler.CreateSessionHandler;
 import com.rapidphotoupload.application.handler.InitiateUploadHandler;
 import com.rapidphotoupload.application.handler.GetUploadStatusQueryHandler;
+import com.rapidphotoupload.application.handler.UpdateSessionMetricsHandler;
+import com.rapidphotoupload.application.command.UpdateSessionMetricsCommand;
 import com.rapidphotoupload.application.query.GetUploadStatusQuery;
 import com.rapidphotoupload.domain.model.UploadSession;
 import com.rapidphotoupload.infrastructure.security.UserPrincipal;
@@ -36,6 +38,7 @@ public class UploadController {
     private final CompleteUploadHandler completeUploadHandler;
     private final CreateSessionHandler createSessionHandler;
     private final GetUploadStatusQueryHandler getUploadStatusQueryHandler;
+    private final UpdateSessionMetricsHandler updateSessionMetricsHandler;
     
     /**
      * Create a new upload session.
@@ -143,5 +146,32 @@ public class UploadController {
         SessionStatusResponse response = getUploadStatusQueryHandler.handle(query);
         
         return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Update performance metrics for a session.
+     * POST /api/v1/uploads/sessions/{sessionId}/metrics
+     */
+    @PostMapping("/sessions/{sessionId}/metrics")
+    public ResponseEntity<Void> updateSessionMetrics(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID sessionId,
+            @Valid @RequestBody UpdateSessionMetricsRequest request) {
+        
+        log.info("Updating metrics for session {}", sessionId);
+        
+        UpdateSessionMetricsCommand command = new UpdateSessionMetricsCommand(
+            sessionId,
+            principal.getUserId(),
+            request.getTotalBytesUploaded(),
+            request.getAvgUploadDurationMs(),
+            request.getAvgThroughputMbps(),
+            request.getMinUploadDurationMs(),
+            request.getMaxUploadDurationMs()
+        );
+        
+        updateSessionMetricsHandler.handle(command);
+        
+        return ResponseEntity.noContent().build();
     }
 }

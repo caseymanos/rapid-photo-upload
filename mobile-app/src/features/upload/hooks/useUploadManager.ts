@@ -5,10 +5,11 @@ import { UploadItem } from '../../../shared/types';
 interface UseUploadManagerOptions {
   concurrency?: number;
   onAllComplete?: () => void;
+  sessionId?: string | null;
 }
 
 export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
-  const { concurrency = 10, onAllComplete } = options;
+  const { concurrency = 10, onAllComplete, sessionId } = options;
 
   const [uploads, setUploads] = useState<Map<string, UploadItem>>(new Map());
   const [activeUploads, setActiveUploads] = useState(0);
@@ -133,10 +134,11 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
             updateUploadProgress(uploadId, progress);
           },
           signal,
+          sessionId: sessionId || undefined,
         }
       );
 
-      // Mark as completed with photo info
+      // Mark as completed with photo info and performance metrics
       setUploads((prev) => {
         const newUploads = new Map(prev);
         const upload = newUploads.get(uploadId);
@@ -147,6 +149,7 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
             photoId: result.photoId,
             uploadId: result.uploadId,
             endTime: Date.now(),
+            uploadDurationMs: result.uploadDurationMs,
           });
         }
         return newUploads;
@@ -302,6 +305,41 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
     { total: 0, completed: 0, failed: 0, uploading: 0, pending: 0 }
   );
 
+  /**
+   * Compute performance metrics from completed uploads
+   */
+  const computePerformanceMetrics = useCallback(() => {
+    const completedUploads = Array.from(uploads.values()).filter(
+      (u) => u.status === 'completed' && u.uploadDurationMs && u.fileSize
+    );
+
+    if (completedUploads.length === 0) {
+      return null;
+    }
+
+    const totalBytes = completedUploads.reduce((sum, u) => sum + (u.fileSize || 0), 0);
+    const durations = completedUploads.map((u) => u.uploadDurationMs!);
+    const avgDurationMs = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+    const minDurationMs = Math.min(...durations);
+    const maxDurationMs = Math.max(...durations);
+
+    // Calculate average throughput in Mbps
+    const throughputs = completedUploads.map((u) => {
+      const durationSeconds = u.uploadDurationMs! / 1000;
+      const megabits = (u.fileSize! * 8) / 1_000_000;
+      return megabits / durationSeconds;
+    });
+    const avgThroughputMbps = throughputs.reduce((a, b) => a + b, 0) / throughputs.length;
+
+    return {
+      totalBytesUploaded: totalBytes,
+      avgUploadDurationMs: avgDurationMs,
+      avgThroughputMbps: Math.round(avgThroughputMbps * 100) / 100,
+      minUploadDurationMs: minDurationMs,
+      maxUploadDurationMs: maxDurationMs,
+    };
+  }, [uploads]);
+
   return {
     uploads: Array.from(uploads.values()),
     addFiles,
@@ -311,5 +349,6 @@ export const useUploadManager = (options: UseUploadManagerOptions = {}) => {
     clearAll,
     activeUploads,
     stats,
+    computePerformanceMetrics,
   };
 };

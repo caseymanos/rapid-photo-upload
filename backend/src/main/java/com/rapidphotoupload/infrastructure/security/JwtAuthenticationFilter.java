@@ -27,6 +27,7 @@ import java.util.UUID;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtService jwtService;
+    private final SupabaseJwtValidator supabaseJwtValidator;
     
     @Override
     protected void doFilterInternal(
@@ -37,12 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = extractJwtFromRequest(request);
             
-            if (StringUtils.hasText(jwt)) {
-                String email = jwtService.extractEmail(jwt);
-                UUID userId = jwtService.extractUserId(jwt);
-                
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    if (jwtService.validateToken(jwt, email)) {
+            if (StringUtils.hasText(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Try Supabase token first
+                if (supabaseJwtValidator.validateSupabaseToken(jwt)) {
+                    UUID userId = supabaseJwtValidator.extractUserId(jwt);
+                    String email = supabaseJwtValidator.extractEmail(jwt);
+                    
+                    if (email != null) {
                         UserPrincipal principal = new UserPrincipal(userId, email);
                         
                         UsernamePasswordAuthenticationToken authentication = 
@@ -55,10 +57,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
+                } else {
+                    // Fallback to custom JWT
+                    try {
+                        String email = jwtService.extractEmail(jwt);
+                        UUID userId = jwtService.extractUserId(jwt);
+                        
+                        if (email != null && jwtService.validateToken(jwt, email)) {
+                            UserPrincipal principal = new UserPrincipal(userId, email);
+                            
+                            UsernamePasswordAuthenticationToken authentication = 
+                                new UsernamePasswordAuthenticationToken(
+                                    principal,
+                                    null,
+                                    new ArrayList<>()
+                                );
+                            
+                            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        }
+                    } catch (Exception e) {
+                        log.debug("Custom JWT validation failed, token may be Supabase-only", e);
+                    }
                 }
             }
         } catch (Exception e) {
-            log.error("Cannot set user authentication", e);
+            log.error("Token validation error", e);
         }
         
         filterChain.doFilter(request, response);

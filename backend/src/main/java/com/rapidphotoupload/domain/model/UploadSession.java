@@ -28,6 +28,13 @@ public class UploadSession {
     private Instant startedAt;
     private Instant completedAt;
     
+    // Performance metrics
+    private Long totalBytesUploaded;
+    private Long avgUploadDurationMs;
+    private Double avgThroughputMbps;
+    private Long minUploadDurationMs;
+    private Long maxUploadDurationMs;
+    
     private Long version;
     
     private List<DomainEvent> domainEvents = new ArrayList<>();
@@ -38,14 +45,16 @@ public class UploadSession {
 
     public UploadSession(UUID id, UUID userId, int expectedPhotoCount) {
         this(id, userId, generateSessionToken(), expectedPhotoCount, 0, 0,
-            SessionStatus.IN_PROGRESS, Instant.now(), null, null);
+            SessionStatus.IN_PROGRESS, Instant.now(), null, null, null, null, null, null, null);
         addDomainEvent(new UploadSessionStarted(id, userId, Instant.now()));
     }
 
     // Public constructor for persistence reconstruction
     public UploadSession(UUID id, UUID userId, String sessionToken, int totalPhotos,
                          int completedPhotos, int failedPhotos, SessionStatus status,
-                         Instant startedAt, Instant completedAt, Long version) {
+                         Instant startedAt, Instant completedAt, Long totalBytesUploaded,
+                         Long avgUploadDurationMs, Double avgThroughputMbps,
+                         Long minUploadDurationMs, Long maxUploadDurationMs, Long version) {
         this.id = id;
         this.userId = userId;
         this.sessionToken = sessionToken;
@@ -55,6 +64,11 @@ public class UploadSession {
         this.status = status;
         this.startedAt = startedAt;
         this.completedAt = completedAt;
+        this.totalBytesUploaded = totalBytesUploaded;
+        this.avgUploadDurationMs = avgUploadDurationMs;
+        this.avgThroughputMbps = avgThroughputMbps;
+        this.minUploadDurationMs = minUploadDurationMs;
+        this.maxUploadDurationMs = maxUploadDurationMs;
         this.version = version;
     }
     
@@ -119,5 +133,15 @@ public class UploadSession {
     
     public void clearDomainEvents() {
         this.domainEvents.clear();
+    }
+    
+    public void updatePerformanceMetrics(Long totalBytesUploaded, Long avgUploadDurationMs,
+                                         Double avgThroughputMbps, Long minUploadDurationMs,
+                                         Long maxUploadDurationMs) {
+        this.totalBytesUploaded = totalBytesUploaded;
+        this.avgUploadDurationMs = avgUploadDurationMs;
+        this.avgThroughputMbps = avgThroughputMbps;
+        this.minUploadDurationMs = minUploadDurationMs;
+        this.maxUploadDurationMs = maxUploadDurationMs;
     }
 }

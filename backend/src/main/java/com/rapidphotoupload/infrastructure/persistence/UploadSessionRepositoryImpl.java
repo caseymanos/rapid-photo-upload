@@ -72,6 +72,11 @@ public class UploadSessionRepositoryImpl implements UploadSessionRepository {
             entity.getStatus(),
             entity.getStartedAt(),
             entity.getCompletedAt(),
+            entity.getTotalBytesUploaded(),
+            entity.getAvgUploadDurationMs(),
+            entity.getAvgThroughputMbps(),
+            entity.getMinUploadDurationMs(),
+            entity.getMaxUploadDurationMs(),
             entity.getVersion()
         );
     }
@@ -87,6 +92,11 @@ public class UploadSessionRepositoryImpl implements UploadSessionRepository {
         entity.setStatus(session.getStatus());
         entity.setStartedAt(session.getStartedAt());
         entity.setCompletedAt(session.getCompletedAt());
+        entity.setTotalBytesUploaded(session.getTotalBytesUploaded());
+        entity.setAvgUploadDurationMs(session.getAvgUploadDurationMs());
+        entity.setAvgThroughputMbps(session.getAvgThroughputMbps());
+        entity.setMinUploadDurationMs(session.getMinUploadDurationMs());
+        entity.setMaxUploadDurationMs(session.getMaxUploadDurationMs());
         entity.setVersion(session.getVersion());
         return entity;
     }

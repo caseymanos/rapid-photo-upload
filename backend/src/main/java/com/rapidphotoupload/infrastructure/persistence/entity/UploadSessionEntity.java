@@ -49,6 +49,21 @@ public class UploadSessionEntity {
     @Column(name = "completed_at")
     private Instant completedAt;
     
+    @Column(name = "total_bytes_uploaded")
+    private Long totalBytesUploaded;
+    
+    @Column(name = "avg_upload_duration_ms")
+    private Long avgUploadDurationMs;
+    
+    @Column(name = "avg_throughput_mbps")
+    private Double avgThroughputMbps;
+    
+    @Column(name = "min_upload_duration_ms")
+    private Long minUploadDurationMs;
+    
+    @Column(name = "max_upload_duration_ms")
+    private Long maxUploadDurationMs;
+    
     @Version
     private Long version;
 }

@@ -2,13 +2,16 @@ import { useUploadManager } from '../hooks/useUploadManager';
 import { UploadZone } from '../components/UploadZone';
 import { UploadProgressList } from '../components/UploadProgressList';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { photoApi } from '@/shared/api/endpoints';
+import { useEffect, useState, useCallback } from 'react';
+import { photoApi, uploadApi } from '@/shared/api/endpoints';
 import { usePhotoCache } from '../../gallery/context/PhotoCacheContext';
+import { withRetry } from '@/shared/utils/retryUtil';
 
 export const UploadPage = () => {
   const navigate = useNavigate();
   const { setCache } = usePhotoCache();
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  
   const {
     uploads,
     addFiles,
@@ -16,11 +19,38 @@ export const UploadPage = () => {
     retryUpload,
     clearCompleted,
     stats,
+    computePerformanceMetrics,
   } = useUploadManager({
     concurrency: 10,
-    onAllComplete: () => {
-      // Optionally navigate to gallery when all uploads complete
-      // navigate('/gallery');
+    sessionId: currentSessionId,
+    onAllComplete: async () => {
+      // Submit performance metrics when all uploads complete
+      if (currentSessionId && stats.completed > 0) {
+        try {
+          const metrics = computePerformanceMetrics();
+          if (metrics) {
+            // Use retry logic with exponential backoff
+            await withRetry(
+              () => uploadApi.updateSessionMetrics(currentSessionId, metrics),
+              {
+                maxRetries: 3,
+                initialDelayMs: 1000,
+                maxDelayMs: 8000,
+                onRetry: (attempt, error) => {
+                  console.warn(
+                    `[Performance] Metrics submission attempt ${attempt} failed:`,
+                    error.message
+                  );
+                },
+              }
+            );
+            console.log('[Performance] Metrics submitted successfully for session:', currentSessionId);
+          }
+        } catch (error) {
+          console.error('[Performance] All retry attempts failed for metrics submission:', error);
+          // Consider queuing for later retry or showing user notification
+        }
+      }
     },
   });
 
@@ -52,9 +82,40 @@ export const UploadPage = () => {
     }
   }, [stats.uploading, stats.pending, setCache]);
 
-  const handleFilesSelected = (files: File[]) => {
+  // Auto-clear session after 1 hour of inactivity
+  useEffect(() => {
+    if (!currentSessionId) return;
+    
+    // Reset timer whenever upload activity changes
+    const timeoutId = setTimeout(() => {
+      console.log('[Session] Session expired due to inactivity (1 hour)');
+      setCurrentSessionId(null);
+    }, 3600000); // 1 hour
+    
+    return () => clearTimeout(timeoutId);
+  }, [currentSessionId, stats.uploading, stats.pending]);
+
+  const handleFilesSelected = useCallback(async (files: File[]) => {
+    // Create upload session if not already created
+    if (!currentSessionId && files.length > 0) {
+      try {
+        const response = await uploadApi.createSession({
+          expectedPhotoCount: files.length,
+        });
+        setCurrentSessionId(response.data.sessionId);
+        console.log('[Session] Created upload session:', response.data.sessionId);
+      } catch (error) {
+        console.error('[Session] Failed to create session:', error);
+        // Continue with upload even if session creation fails
+      }
+    }
     addFiles(files);
-  };
+  }, [currentSessionId, addFiles]);
+
+  const handleStartNewSession = useCallback(() => {
+    setCurrentSessionId(null);
+    console.log('[Session] Manually cleared session - ready for new batch');
+  }, []);
 
   const isUploading = stats.uploading > 0 || stats.pending > 0;
 
@@ -69,6 +130,33 @@ export const UploadPage = () => {
               <p className="mt-2 text-sm text-gray-600">
                 Upload up to 100 photos simultaneously with real-time progress tracking
               </p>
+              {currentSessionId && (
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Session Active: {currentSessionId.substring(0, 8)}...
+                  </div>
+                  {!isUploading && (
+                    <button
+                      onClick={handleStartNewSession}
+                      className="text-sm text-gray-600 hover:text-gray-900 underline"
+                      title="Start a new upload session for the next batch"
+                    >
+                      Start New Session
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <button
               onClick={() => navigate('/gallery')}

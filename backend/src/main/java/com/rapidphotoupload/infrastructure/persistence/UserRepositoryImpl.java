@@ -48,7 +48,7 @@ public class UserRepositoryImpl implements UserRepository {
         return new User(
             entity.getId(),
             entity.getEmail(),
-            entity.getPasswordHash(),
+            null,  // Password managed by Supabase Auth
             entity.getCreatedAt(),
             entity.getUpdatedAt()
         );
@@ -58,7 +58,7 @@ public class UserRepositoryImpl implements UserRepository {
         UserEntity entity = new UserEntity();
         entity.setId(user.getId());
         entity.setEmail(user.getEmail());
-        entity.setPasswordHash(user.getPasswordHash());
+        // Password not stored in entity - managed by Supabase Auth
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
         return entity;

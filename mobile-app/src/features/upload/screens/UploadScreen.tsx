@@ -6,42 +6,98 @@ import { UploadProgressList } from '../components/UploadProgressList';
 import { UploadSummary } from '../components/UploadSummary';
 import { useUploadManager } from '../hooks/useUploadManager';
 import { useAuthStore } from '../../auth/store/authStore';
+import { uploadApi } from '../../../shared/api/endpoints';
+import { withRetry } from '../../../shared/utils/retryUtil';
 
 export const UploadScreen: React.FC = () => {
   const [showSummary, setShowSummary] = useState(false);
   const [completedUploads, setCompletedUploads] = useState<any[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const uploadsRef = useRef<any[]>([]);
+  const computeMetricsRef = useRef<(() => any) | null>(null);
+  const statsRef = useRef<any>(null);
 
-  const handleAllComplete = useCallback(() => {
+  const handleAllComplete = useCallback(async () => {
     console.log('All uploads complete!');
     // Save completed uploads for summary
     setCompletedUploads([...uploadsRef.current]);
     setShowSummary(true);
-  }, []);
 
-  const { uploads, addFiles, cancelUpload, retryUpload, clearCompleted, stats } = useUploadManager({
+    // Submit performance metrics when all uploads complete
+    if (currentSessionId && statsRef.current?.completed > 0 && computeMetricsRef.current) {
+      try {
+        const metrics = computeMetricsRef.current();
+        if (metrics) {
+          // Use retry logic with exponential backoff
+          await withRetry(
+            () => uploadApi.updateSessionMetrics(currentSessionId, metrics),
+            {
+              maxRetries: 3,
+              initialDelayMs: 1000,
+              maxDelayMs: 8000,
+              onRetry: (attempt, error) => {
+                if (__DEV__) {
+                  console.warn(
+                    `[Performance] Metrics submission attempt ${attempt} failed:`,
+                    error.message
+                  );
+                }
+              },
+            }
+          );
+          console.log('[Performance] Metrics submitted successfully for session:', currentSessionId);
+        }
+      } catch (error) {
+        console.error('[Performance] All retry attempts failed for metrics submission:', error);
+        // Consider queuing for later retry or showing user notification
+      }
+    }
+  }, [currentSessionId]);
+
+  const { uploads, addFiles, cancelUpload, retryUpload, clearCompleted, stats, computePerformanceMetrics } = useUploadManager({
     concurrency: 10,
+    sessionId: currentSessionId,
     onAllComplete: handleAllComplete,
   });
+
+  // Keep refs updated with latest values
+  computeMetricsRef.current = computePerformanceMetrics;
+  statsRef.current = stats;
 
   // Keep ref updated with latest uploads
   uploadsRef.current = uploads;
 
   const { logout, email } = useAuthStore();
 
-  const handlePhotosSelected = (photos: Array<{
+  const handlePhotosSelected = useCallback(async (photos: Array<{
     uri: string;
     filename: string;
     fileSize: number;
     mimeType: string;
   }>) => {
+    // Create upload session if not already created
+    if (!currentSessionId && photos.length > 0) {
+      try {
+        const response = await uploadApi.createSession({
+          expectedPhotoCount: photos.length,
+        });
+        setCurrentSessionId(response.data.sessionId);
+        console.log('[Session] Created upload session:', response.data.sessionId);
+      } catch (error) {
+        console.error('[Session] Failed to create session:', error);
+        // Continue with upload even if session creation fails
+      }
+    }
+
     addFiles(photos);
-  };
+  }, [currentSessionId, addFiles]);
 
   const handleCloseSummary = () => {
     setShowSummary(false);
     clearCompleted();
     setCompletedUploads([]);
+    // Clear session for next batch
+    setCurrentSessionId(null);
   };
 
   const handleRetryFailed = () => {

@@ -2,11 +2,15 @@
 
 # Load environment variables
 if [ -f .env.local ]; then
-    export $(cat .env.local | grep -v '^#' | xargs)
+    set -a
+    source .env.local
+    set +a
 fi
 
 # Set Java home
-export JAVA_HOME=/Users/caseymanos/Library/Java/JavaVirtualMachines/openjdk-21.0.1/Contents/Home
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH="$JAVA_HOME/bin:$PATH"
+export _JAVA_OPTIONS="-Djdk.lang.Process.launchMechanism=FORK"
 
 # Run the application
 mvn spring-boot:run

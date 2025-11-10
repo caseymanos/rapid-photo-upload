@@ -8,12 +8,14 @@ const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
 export interface UploadOptions {
   onProgress?: (progress: number) => void;
   signal?: AbortSignal;
+  sessionId?: string;
 }
 
 export interface UploadResult {
   photoId: string;
   uploadId: string;
   s3Key: string;
+  uploadDurationMs: number;
 }
 
 class UploadService {
@@ -48,6 +50,7 @@ class UploadService {
         originalFilename: uploadFilename,
         fileSizeBytes: uploadSize,
         mimeType: uploadMimeType,
+        uploadSessionId: options.sessionId,
       };
 
       const { data: initResponse } = await uploadApi.initiateUpload(initRequest);
@@ -85,7 +88,7 @@ class UploadService {
       );
 
       const uploadId = multipartUploadId;
-      return { photoId, uploadId, s3Key };
+      return { photoId, uploadId, s3Key, uploadDurationMs: totalDuration };
     } catch (error) {
       const totalDuration = Date.now() - overallStart;
       console.error(`Upload failed after ${totalDuration}ms:`, error);
@@ -136,16 +139,13 @@ class UploadService {
           throw new Error(`Part ${presigned.partNumber}: Read 0 bytes from file`);
         }
 
-        // Convert bytes to base64
-        const chunkBase64 = this.bytesToBase64(bytes);
+        console.log(`[Upload] Part ${presigned.partNumber}: Uploading ${bytes.length} bytes`);
 
-        // Decode base64 back to binary string for fetch body
-        const binaryString = atob(chunkBase64);
-
-        // Upload chunk to S3 using fetch with binary string
+        // Upload chunk to S3 using fetch with raw binary data
+        // IMPORTANT: Use Uint8Array directly, not string conversion which corrupts binary data
         const response = await fetch(presigned.url, {
           method: 'PUT',
-          body: binaryString,
+          body: bytes,
           headers: {
             'Content-Type': mimeType,
             'Content-Length': length.toString(),

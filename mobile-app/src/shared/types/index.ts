@@ -71,6 +71,11 @@ export interface SessionStatusResponse {
   status: SessionStatus;
   startedAt: string;
   completedAt?: string;
+  totalBytesUploaded?: number;
+  avgUploadDurationMs?: number;
+  avgThroughputMbps?: number;
+  minUploadDurationMs?: number;
+  maxUploadDurationMs?: number;
 }
 
 // Enums
@@ -115,9 +120,21 @@ export interface CompleteUploadRequest {
   parts: CompletedPart[];
 }
 
+export interface CreateSessionRequest {
+  expectedPhotoCount: number;
+}
+
 export interface UpdatePhotoMetadataRequest {
   tags?: string[];
   metadata?: PhotoMetadata;
+}
+
+export interface UpdateSessionMetricsRequest {
+  totalBytesUploaded: number;
+  avgUploadDurationMs: number;
+  avgThroughputMbps: number;
+  minUploadDurationMs: number;
+  maxUploadDurationMs: number;
 }
 
 // Mobile-specific types (adapted from web)
@@ -134,6 +151,7 @@ export interface UploadItem {
   error?: string;
   startTime?: number;
   endTime?: number;
+  uploadDurationMs?: number;
 }
 
 export interface UploadProgress {

@@ -3,6 +3,7 @@ import { LoginForm } from './features/auth/components/LoginForm';
 import { RegisterForm } from './features/auth/components/RegisterForm';
 import { UploadPage } from './features/upload/pages/UploadPage';
 import { GalleryPage } from './features/gallery/pages/GalleryPage';
+import { StatsPage } from './features/stats/pages/StatsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { useAuthStore } from './features/auth/store/authStore';
@@ -39,6 +40,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <GalleryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <StatsPage />
               </ProtectedRoute>
             }
           />

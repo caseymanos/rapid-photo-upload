@@ -108,58 +108,81 @@ class UploadService {
 
     // Upload all parts in parallel
     const uploadPromises = presignedUrls.map(async (presigned) => {
-      // Calculate chunk offset and size
-      const partIndex = presigned.partNumber - 1;
-      const offset = partIndex * CHUNK_SIZE;
-      const length = Math.min(CHUNK_SIZE, fileSize - offset);
+      try {
+        // Calculate chunk offset and size
+        const partIndex = presigned.partNumber - 1;
+        const offset = partIndex * CHUNK_SIZE;
+        const length = Math.min(CHUNK_SIZE, fileSize - offset);
 
-      // Read chunk from file using new File API
-      const file = new File(uri);
-      const handle = file.open();
-      handle.offset = offset;
-      const bytes = handle.readBytes(length);
-      handle.close();
+        console.log(`[Upload] Part ${presigned.partNumber}: offset=${offset}, length=${length}`);
 
-      // Convert bytes to base64
-      const chunkBase64 = this.bytesToBase64(bytes);
+        // Read chunk from file using File API
+        let bytes: Uint8Array;
+        try {
+          const file = new File(uri);
+          if (!file.exists) {
+            throw new Error(`File does not exist: ${uri}`);
+          }
+          const handle = file.open();
+          handle.offset = offset;
+          bytes = handle.readBytes(length);
+          handle.close();
+        } catch (fileError) {
+          console.error(`[Upload] File API error for part ${presigned.partNumber}:`, fileError);
+          throw new Error(`Failed to read file chunk: ${fileError}`);
+        }
 
-      // Decode base64 back to binary string for fetch body
-      const binaryString = atob(chunkBase64);
+        if (!bytes || bytes.length === 0) {
+          throw new Error(`Part ${presigned.partNumber}: Read 0 bytes from file`);
+        }
 
-      // Upload chunk to S3 using fetch with binary string
-      const response = await fetch(presigned.url, {
-        method: 'PUT',
-        body: binaryString,
-        headers: {
-          'Content-Type': mimeType,
-          'Content-Length': length.toString(),
-        },
-        signal: options.signal,
-      });
+        // Convert bytes to base64
+        const chunkBase64 = this.bytesToBase64(bytes);
 
-      if (!response.ok) {
-        throw new Error(
-          `Part ${presigned.partNumber} upload failed: ${response.statusText}`
-        );
+        // Decode base64 back to binary string for fetch body
+        const binaryString = atob(chunkBase64);
+
+        // Upload chunk to S3 using fetch with binary string
+        const response = await fetch(presigned.url, {
+          method: 'PUT',
+          body: binaryString,
+          headers: {
+            'Content-Type': mimeType,
+            'Content-Length': length.toString(),
+          },
+          signal: options.signal,
+        });
+
+        if (!response.ok) {
+          const responseText = await response.text().catch(() => 'Unable to read response');
+          throw new Error(
+            `Part ${presigned.partNumber} upload failed: ${response.status} ${response.statusText}\n${responseText}`
+          );
+        }
+
+        // Extract ETag from response headers
+        const etag = response.headers.get('ETag')?.replace(/"/g, '');
+        if (!etag) {
+          throw new Error(`Part ${presigned.partNumber} missing ETag in response`);
+        }
+
+        console.log(`[Upload] Part ${presigned.partNumber} success: etag=${etag}`);
+
+        // Update progress
+        completedParts++;
+        if (options.onProgress) {
+          const progress = (completedParts / totalParts) * 100;
+          options.onProgress(Math.round(progress));
+        }
+
+        return {
+          partNumber: presigned.partNumber,
+          etag,
+        };
+      } catch (error) {
+        console.error(`[Upload] Part ${presigned.partNumber} failed:`, error);
+        throw error;
       }
-
-      // Extract ETag from response headers
-      const etag = response.headers.get('ETag')?.replace(/"/g, '');
-      if (!etag) {
-        throw new Error(`Part ${presigned.partNumber} missing ETag`);
-      }
-
-      // Update progress
-      completedParts++;
-      if (options.onProgress) {
-        const progress = (completedParts / totalParts) * 100;
-        options.onProgress(Math.round(progress));
-      }
-
-      return {
-        partNumber: presigned.partNumber,
-        etag,
-      };
     });
 
     // Wait for all parts to complete
@@ -222,6 +245,8 @@ class UploadService {
     fileSize: number,
     mimeType: string
   ): Promise<{ uri: string; filename: string; fileSize: number; mimeType: string }> {
+    console.log(`[UploadService] Preparing file: ${filename}, type: ${mimeType}, size: ${fileSize}`);
+
     const lowerName = (filename || '').toLowerCase();
     const normalizedMime = mimeType?.toLowerCase() || '';
     const looksLikeHeic =
@@ -231,10 +256,12 @@ class UploadService {
       lowerName.endsWith('.heif');
 
     if (!looksLikeHeic) {
+      console.log(`[UploadService] Not HEIC, uploading as-is`);
       return { uri, filename, fileSize, mimeType };
     }
 
     try {
+      console.log(`[UploadService] Detected HEIC, converting to JPEG...`);
       const converted = await ImageManipulator.manipulateAsync(
         uri,
         [],
@@ -243,6 +270,8 @@ class UploadService {
           format: ImageManipulator.SaveFormat.JPEG,
         }
       );
+
+      console.log(`[UploadService] HEIC conversion successful, new URI: ${converted.uri}`);
 
       const info = await getInfoAsync(converted.uri);
       const derivedSize =
@@ -253,6 +282,8 @@ class UploadService {
         filename?.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg') ||
         `photo-${Date.now()}.jpg`;
 
+      console.log(`[UploadService] Converted file: ${normalizedName}, new size: ${derivedSize}`);
+
       return {
         uri: converted.uri,
         filename: normalizedName,
@@ -260,7 +291,7 @@ class UploadService {
         mimeType: 'image/jpeg',
       };
     } catch (error) {
-      console.warn('[UploadService] Failed to convert HEIC, uploading original file', error);
+      console.error('[UploadService] Failed to convert HEIC, will upload original file:', error);
       return {
         uri,
         filename,

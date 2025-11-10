@@ -21,7 +21,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.rapidphotoupload.app",
-      buildNumber: "5",
+      buildNumber: "7",
       infoPlist: {
         NSCameraUsageDescription: "This app needs camera access to take photos for upload.",
         NSPhotoLibraryUsageDescription: "This app needs photo library access to select photos for upload.",
